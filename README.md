@@ -122,3 +122,93 @@ function getIndex(arr){
     return pos;
 }
 ```
+
+## Day 3
+
+### LeetCode[15] 三数之和
+``` javascript
+var threeSum = function(nums) {
+    nums.sort((a,b)=>a-b)
+    let result=[] , j , k
+    for (let i=0 ; i<nums.length ; i++){
+        j = i+1
+        k = nums.length-1
+        if (nums[i]>0) return result
+        if (nums[i]===nums[i-1]) continue
+        while(j<k){
+            if(-nums[i] > nums[j]+nums[k]){
+                j++
+                continue
+            }
+            if(-nums[i] < nums[j]+nums[k]){
+                k--
+                continue
+            }
+            while(nums[j]===nums[j+1]) j++
+            while(nums[k]===nums[k-1]) k--
+            result.push([nums[i],nums[j++],nums[k--]])
+        }
+    }
+    return result
+};
+```
+
+### LeetCode[88] 合并两个有序数组
+``` javascript
+var merge = function(nums1, m, nums2, n) {
+    let i = m-1 , j = n-1
+    for (let k=m+n-1 ; k > -1 ; k--){
+        if (nums1[i]>nums2[j]){
+            nums1[k] = nums1[i--]
+            continue
+        }
+        //考虑nums2遍历完则直接输出num1即可，为什么不需要考虑i<0呢？因为i<0时要做的是把nums2中剩下的元素以此放入nums1，也就是和
+        // nums1[i]<nums2[j]时候的操作一样，统一放入else中处理
+        if(j<0){
+            break
+        }
+        //
+        else{
+            nums1[k] = nums2[j--]
+            continue
+        }
+    } 
+};
+```
+
+### 输出以下代码运行结果，为什么？如果希望每隔 1s 输出一个结果，应该如何改造？注意不可改动 square 方法
+``` javascript
+const list = [1, 2, 3]
+const square = num => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(num * num)
+    }, 1000)
+  })
+}
+
+function test() {
+  list.forEach(async x=> {
+    const res = await square(x)
+    console.log(res)
+  })
+}
+test()
+//forEach是不能阻塞的，默认是请求并行发起，所以是同时输出1、4、9。
+//方法一：采用递归调用
+let index =0
+async function test (index){
+    console.log( await square(list[index]));
+    if(index<list.length){
+        test(index+1)
+    }
+}
+// 方法二：采用普调for循环或者for of循环即可
+async function test() {
+  for (let i = 0; i < list.length; i++) {
+    let x = list[i]
+    const res = await square(x)
+    console.log(res)
+  }
+}
+```
