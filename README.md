@@ -273,3 +273,69 @@ function getProm() {
 }
 Promise.retry(getProm);
 ```
+
+## Day 5
+
+### 已知如下数组：var arr = [ [1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14] ] ] ], 10];编写一个程序将数组扁平化去并除其中重复部分数据，最终得到一个升序且不重复的数组
+
+``` javascript
+//扁平化
+const flat = (arr)=> arr.flat(Infinity)
+//手写扁平化
+const handwritingFlat = (arr)=>{
+    return arr.reduce((pre,cur)=>{
+        return pre.concat(Array.isArray(cur)?handwritingFlat(cur):cur)
+    },[])
+}
+//去重
+const removeRepeat = (arr)=> Array.from(new Set(arr))
+//排序
+const sort = (arr)=>arr.sort((a,b)=>a-b)
+//整合函数
+const compose = (...fns)=>(val)=>{
+    return fns.reduce((pre,cur)=>{
+        return cur(pre)
+    },val)
+}
+arr =compose(handwritingFlat,removeRepeat,sort)(arr)
+```
+### JS数据类型判断总结
+
+**typeof**
+
+>主要用于判断数据是不是基本数据类型,可以测试出number、string、boolean、Symbol、undefined及function，而对于null及数组、对象，typeof均检测出为object 
+
+**instanceof**
+>instanceof 操作符用来比较两个操作对象的构造函数，就是检查某个对象的原型链是否包含某个构造函数的 prototype 属性也就是说instanceof 在判断一个对象是不是一个类的实例这样的自定义的对象时才有意义，但是比较属于不同的 javascript 上下文的对象时将会出错，因为它们的构造函数不是同一个对象
+``` javascript
+3 instanceof Number // false
+true instanceof Boolean // false
+'abc' instanceof String // false
+new String('foo') instanceof String; // true
+new Array(123) instanceof Array; // true
+```
+**constructor**
+>constructor这个属性存在于构造函数的原型上，指向构造函数，对象可以通过__proto__在其所属类的原型上找到这个属性.undefined和null没有contructor属性
+这个方法并不安全，思考以下代码
+``` javascript
+Function Fn() {}
+Fn.prototype = {}
+var fn = new Fn();
+console.log(fn.constructor === Fn);//false
+console.log(fn.constructor === Object);//true
+
+// fn自身并没有constructor属性，所以它会委托prototype链上的Fn.prototype,但是这个对象身上也没有constructor，因此会继续委托给顶端的Object.prototype,它的constructor指向内置的Object函数。
+```
+**Object.prototype.toString.call()**
+>Object.prototype.toString 方法能有效弥补typeof不能很好区分数组、对象和函数的短板。
+
+**基本包装类型**
+>字面创建基本数据类型的值时，并不会调用JS的内置构造函数，因此字面量创建的值就是基本数据类型，而不是实例(对象数据类型)。-->所以用instanceof检测基本数据类型时都会返回false,但是一个基本数据类型并不是对象，是不应该有属性的,这是因为JS中有三种基本包装类型，Nmber，String，Boolean例如一个字符串，当作对象去调用其原型上的方法时，JS会临时创建一个与其对应的基本包装类型的值，这个值是String的实例，调用方法，其实是这个实例在调用字符串的方法。
+``` javascript
+var a = 1;
+var b = new Number(1);
+typeof a;//'number'
+typeof b;//'object'
+var str = 'chang';
+str.constructor === String;//true，代码执行到这行时，会临时创建与str等价的对象
+```
