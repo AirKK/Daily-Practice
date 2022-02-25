@@ -474,3 +474,125 @@ console.log(arr1); //[ 1, 0, 0, 7, 9 ]
   > 
   > 3.http2提供首部压缩
 - 静态资源使用CDN
+
+## Day 7
+
+### Object 和 Map 的比较
+||Map|Object|
+|--|:--|--|
+|意外的key|不存在|原型链上的键名可能会冲突，可以通过Object.create(null)创建一个没有原型的对象|
+|key的类型|可以是任意值|只能是String和Symbol|
+|key的顺序|有序的根据set的顺序返回键值（通过map.keys().value()获取）|无序的|
+|size|Map的键值对个数|只能通过Object.keys().length获取|
+|性能|在频繁增删的场景表现更好|未做优化|
+### LeetCode[146] LRU (最近最少使用) 缓存
+> 方法一：采用Map实现（利用了map是有序的特性）
+``` javascript
+var LRUCache = function (capacity) {
+    this.capacity = capacity
+    this.useStack = new Map
+};
+
+LRUCache.prototype.get = function (key) {
+    if (key in this) {
+        this.useStack.delete(key)
+        this.useStack.set(key)  //使用后将元素放入队列末尾，map是由顺序的，按插入顺序
+        return this[key]
+    }
+    else {
+        return -1
+    }
+};
+
+LRUCache.prototype.put = function (key, value) {
+    if (key in this) {
+        this[key] = value //存在则更新值
+        this.useStack.delete(key)
+        this.useStack.set(key)  //使用后将元素放入队列末尾
+        return null
+    }
+    else {
+        console.log(this.useStack.size);
+        if (this.useStack.size < this.capacity) {
+            this[key] = value
+            this.useStack.set(key)
+            return null
+        }
+        else {
+            delete this[this.useStack.keys().next().value] //删除最久未使用过的元素(map开头的元素)
+            this[key] = value //重新赋值
+            this.useStack.delete(this.useStack.keys().next().value)
+            this.useStack.set(key)  //使用后将元素放入队列尾部
+            return null
+        }
+    }
+
+};
+```
+> 方法二：采用双向链表实现
+``` javascript
+//声明双向链表结构
+class listNode{
+    constructor(key,value){
+        this.key = key
+        this.value = value
+        this.next = null
+        this.pre = null
+    }
+}
+var LRUCache = function(capacity) {
+    this.map = new Map() //用来存放节点的信息方便删除节点
+    this.capacity = capacity
+    this.dummyHead = new listNode()
+    this.dummyTail = new listNode()
+    this.dummyHead.next = this.dummyTail //创建头结点
+    this.dummyTail.pre = this.dummyHead  //创建尾结点
+};
+// 移除节点
+var removeListNode = function (node){
+    node.pre.next = node.next
+    node.next.pre = node.pre
+}
+//将节点加到链表首部
+var removeToHead = function (node,head){
+    node.next = head.next
+    node.pre = head
+    head.next.pre = node
+    head.next = node
+}
+//移除链表尾部节点
+var removeToTail = function (tail){
+    tail.pre = tail.pre.pre
+    tail.pre.next =tail
+}
+
+
+LRUCache.prototype.get = function(key) {
+    if (this.map.has(key)){
+        let temp = this.map.get(key)//暂存节点
+        removeListNode(temp) //移除节点
+        removeToHead(temp,this.dummyHead)//移动节点至首部
+        return temp.value 
+    }
+    return -1
+};
+
+LRUCache.prototype.put = function(key, value) {
+    if (this.map.has(key)){
+        let temp = this.map.get(key)//暂存节点
+        temp.value = value //重新赋值
+        removeListNode(temp) //移除节点
+        removeToHead(temp,this.dummyHead)//移动节点至首部
+        return null
+    }
+    console.log(this.map.size);
+    if(this.map.size>=this.capacity){
+        this.map.delete(this.dummyTail.pre.key)
+        removeToTail(this.dummyTail)//移除链表尾部节点 
+    }
+    let temp = new listNode(key,value)
+    removeToHead(temp,this.dummyHead)//移动节点至首部  
+    this.map.set(key,temp) //存储节点信息
+    return null
+};
+```
