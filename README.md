@@ -485,8 +485,10 @@ console.log(arr1); //[ 1, 0, 0, 7, 9 ]
 |key的顺序|有序的根据set的顺序返回键值（通过map.keys().value()获取）|无序的|
 |size|Map的键值对个数|只能通过Object.keys().length获取|
 |性能|在频繁增删的场景表现更好|未做优化|
-### LeetCode[146] LRU (最近最少使用) 缓存
-> 方法一：采用Map实现（利用了map是有序的特性）
+</br>
+>### LeetCode[146] LRU (最近最少使用) 缓存
+
+方法一：采用Map实现（利用了map是有序的特性）
 ``` javascript
 var LRUCache = function (capacity) {
     this.capacity = capacity
@@ -529,7 +531,7 @@ LRUCache.prototype.put = function (key, value) {
 
 };
 ```
-> 方法二：采用双向链表实现
+方法二：采用双向链表实现
 ``` javascript
 //声明双向链表结构
 class listNode{
@@ -595,4 +597,98 @@ LRUCache.prototype.put = function(key, value) {
     this.map.set(key,temp) //存储节点信息
     return null
 };
+```
+
+## Day 8
+>###  LeetCode[141] 环形链表
+
+解法一：利用Map的key可以使任意值得特性存储节点
+``` javascript
+var hasCycle = function(head) {
+    let map = new Map() , p = head
+    while(p){
+        if (map.has(p)){
+            return true
+        }
+        map.set(p)
+        p=p.next
+    }
+    return false
+};
+```
+ 解法二：快慢指针 : 空间复杂度为O(1)
+``` javascript
+var hasCycle = function(head) {
+    let  slow = head , fast = head
+    while(fast&&fast.next){
+        if (!fast.next.next) return false
+        slow = slow.next
+        fast = fast.next.next
+        if (fast===slow) return true
+    }
+    return false
+};
+```
+解法三：脏位，每遍历到一个节点设置一个tag标识已经遍历过
+>### LeetCode[21]合并两个有序链表
+ 方法一
+``` javascript
+var mergeTwoLists = function(list1, list2) {
+    let p1 = list1 , p2 = list2 ,dummyHead = new ListNode() ,p3 = dummyHead
+    while (p1 || p2){
+        p3.next = new ListNode()
+        if (p1?.val <= p2?.val ||!p2){
+            p3.next.val = p1.val
+            p1 = p1.next
+        }
+        else{
+            p3.next.val = p2.val
+            p2 = p2.next
+        }
+        p3 = p3.next
+        
+        
+    }
+    return dummyHead.next
+};
+```
+ 方法二：递归的思想
+``` javascript
+var mergeTwoLists = function(list1, list2) {
+    let p1=list1 , p2=list2
+    if (!p1){
+        return p2
+    }
+    if(!p2){
+        return p1
+    }
+    if(p1.val<p2.val){
+        p1.next = mergeTwoLists(p1.next ,p2)
+        return p1
+    }
+    else{
+        p2.next = mergeTwoLists(p1 ,p2.next)
+        return p2
+    }
+};
+```
+
+>### 多个数组的交集
+
+``` javascript 
+// 阿里算法题：编写一个函数计算多个数组的交集
+var intersection = function (...arrs){
+    arrs = arrs.reduce((pre,cur)=>{
+        let result =[]
+      for (let val of cur){
+          if (pre.includes(val)){
+            result.push(val)
+          }
+      } 
+      return Array.from(new Set(result))  
+    },)
+    return arrs
+}
+
+intersection([1,2,3],[2,4,6,3],[2,2,3,5])
 ```
