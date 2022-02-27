@@ -692,3 +692,63 @@ var intersection = function (...arrs){
 
 intersection([1,2,3],[2,4,6,3],[2,2,3,5])
 ```
+
+## Day 9
+
+>### LeetCode[206] 反转链表
+方法一：
+```javascript
+var reverseList = function(head) {
+    let cur=head ,pre=null,temp
+    while(cur){
+       temp = cur.next
+       cur.next = pre
+       pre = cur
+       cur = temp
+    }
+    return pre
+
+};
+```
+方法二：递归
+```javascript
+var reverseList = function(head) {
+   while(head&&head.next){
+       let temp = reverseList(head.next)   
+       head.next.next = head
+       head.next = null
+       return temp 
+   }
+   return head
+};
+```
+>### LeetCode[876] 链表的中间结点
+
+```javascript
+var middleNode = function(head) {
+    let slow=head ,fast=head
+    while(fast){
+        slow=slow.next
+        fast=fast.next.next
+    }
+    return slow
+};
+```
+>### LeetCode[19] 删除链表的倒数第 N 个结点
+
+```javascript
+var removeNthFromEnd = function(head, n) {
+    let count =1
+    fn = function (head, n){
+        while(head.next){
+            head.next = fn(head.next,n) //递归到最后一个节点
+            if(++count===n){
+                return head.next //第n次出栈删除当前节点
+            }
+            return head
+        }
+        return n===1? null: head
+    } 
+    return fn(head, n)  
+};
+```
