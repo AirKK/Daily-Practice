@@ -752,3 +752,63 @@ var removeNthFromEnd = function(head, n) {
     return fn(head, n)  
 };
 ```
+
+## Day 10
+
+>### LeetCode[160] 相交链表
+方法一：脏位
+``` javascript
+var getIntersectionNode = function(headA, headB) {
+    while (headA){
+        headA.tag ='A'
+        headA=headA.next
+    }
+    while(headB){
+        if(headB.tag==='A'){
+            return headB
+        }
+        headB=headB.next
+    }
+    return null
+};
+```
+方法二：双指针法
+``` javascript
+var getIntersectionNode = function(headA, headB) {
+   if(!headA||!headB) return null
+   let p1 = headA , p2 = headB
+   while(p1!=p2){
+       p1 = p1==null? headB : p1.next //当B链表遍历完后，再去遍历A链表，最坏的情况A和B都遍历一遍都没有相等同时为null跳出循环
+       p2 = p2==null? headA : p2.next
+   }
+   return p1
+};
+```
+
+### LeetCode[611] 有效三角形的个数
+方法一：与n数之和一样采用回溯
+``` javascript
+var triangleNumber = function(nums) {
+    let stack =[],count=0
+    nums.sort((a,b)=> a-b)
+    fn = function(start){
+        if(stack.length===2 ){
+            let temp = stack[0]+stack[1]
+             while(start<nums.length){
+                if(temp>nums[start]){
+                count++
+                }
+                start++
+            }
+            return
+        }
+        for (let i =start ;i<nums.length ;i++){
+            stack.push(nums[i])
+            fn(i+1)
+            stack.pop()
+        }       
+    }
+    fn(0)
+    return count
+};
+```
