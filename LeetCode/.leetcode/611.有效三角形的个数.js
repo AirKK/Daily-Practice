@@ -10,7 +10,6 @@
  * @return {number}
  */
 var triangleNumber = function(nums) {
-    
     let stack =[],count=0
     nums.sort((a,b)=> a-b)
     fn = function(start){
