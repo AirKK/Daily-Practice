@@ -812,3 +812,132 @@ var triangleNumber = function(nums) {
     return count
 };
 ```
+方法二：双指针 逆序遍历
+``` javascript
+var triangleNumber = function(nums) {
+   nums.sort((a,b)=>a-b)
+    let i = 0 ,count = 0
+    for (let j = nums.length-1 ; j>1; j--){
+        let k = j-1,i = 0
+        while(k>i){
+            if(nums[i]+nums[k]>nums[j]){
+                count +=k-i //因为nums是升序的，较小的nums[i]符合则大于它的数一定符合
+                k--
+                i=0
+                continue
+            }
+            i++
+        }
+    }
+    return count
+};
+```
+
+## Day 11
+
+### LeetCode [42] 接雨水
+>方法一：动态规划
+``` javascript
+var trap = function(height) {
+    const n = height.length;
+    if (n == 0) {
+        return 0;
+    }
+
+    const leftMax = new Array(n).fill(0);
+    leftMax[0] = height[0];
+    for (let i = 1; i < n; ++i) {
+        leftMax[i] = Math.max(leftMax[i - 1], height[i]);
+    }
+
+    const rightMax = new Array(n).fill(0);
+    rightMax[n - 1] = height[n - 1];
+    for (let i = n - 2; i >= 0; --i) {
+        rightMax[i] = Math.max(rightMax[i + 1], height[i]);
+    }
+
+    let ans = 0;
+    for (let i = 0; i < n; ++i) {
+        ans += Math.min(leftMax[i], rightMax[i]) - height[i];
+    }
+    return ans;
+}
+```
+
+## Day 12
+
+### LeetCode [42] 接雨水
+>方法二：双指针法
+``` javascript
+var trap = function(height) {
+    const n = height.length;
+    if (n == 0) {
+        return 0;
+    }
+
+    const leftMax = new Array(n).fill(0);
+    leftMax[0] = height[0];
+    for (let i = 1; i < n; ++i) {
+        leftMax[i] = Math.max(leftMax[i - 1], height[i]);
+    }
+
+    const rightMax = new Array(n).fill(0);
+    rightMax[n - 1] = height[n - 1];
+    for (let i = n - 2; i >= 0; --i) {
+        rightMax[i] = Math.max(rightMax[i + 1], height[i]);
+    }
+
+    let ans = 0;
+    for (let i = 0; i < n; ++i) {
+        ans += Math.min(leftMax[i], rightMax[i]) - height[i];
+    }
+    return ans;
+}
+```
+
+### LeetCode [151] 翻转字符串里的单词
+
+``` javascript
+var reverseWords = function(s) {
+    let flag = false  ,ans=[],temp=[]//标志遇到空格前有无字符串
+    for (let i=0 ; i<s.length ; i++){
+        if(s[i]===' '){
+            if(s[i+1]===' ' ||!s[i+1]){
+                continue
+            } 
+            if(flag){
+                //flag为true 说明前面有单词没有压入栈
+                flag =false
+                console.log(temp);
+                ans.unshift(' ',...temp) //空格隔开每个单词
+                temp=[]
+            }
+        }
+        else{
+            flag = true
+            temp.push(s[i])  
+        }
+    }
+    ans.unshift(...temp) // 最后一个单词不需要加空格隔开
+    return ans.join('')
+};
+```
+### LeetCode [14] 最长公共前缀
+
+``` javascript
+var longestCommonPrefix = function(strs) {
+    let ans = strs.reduce((pre,cur)=>{
+        let i = 0 ,count = 0
+        while(pre[i]) {
+            if(pre[i]===cur[i]){
+                count ++
+                i++
+                continue
+            }
+           break
+        }  
+         return count===0? '' : pre.substring(0,count)
+    },strs[0])
+    return ans? ans :''
+};
+```
