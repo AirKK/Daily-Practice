@@ -941,3 +941,55 @@ var longestCommonPrefix = function(strs) {
     return ans? ans :''
 };
 ```
+
+## Day 13
+
+### LeetCode [415] 字符串相加
+> 跟链表的两数相加一样的思想
+``` javascript
+var addStrings = function(num1, num2) {
+    let carry =0 ,i=num1.length-1 , j=num2.length-1,ans=[]
+    while(carry||i>-1||j>-1){
+        let temp =0
+        if(i>-1){
+            temp =  Number(num1[i])
+            i--
+        }
+        if(j>-1){
+            temp +=  Number(num2[j])
+            j--
+        }
+        if(carry){
+            temp += carry
+        }
+        carry = Math.floor(temp/10) 
+        ans.unshift(temp%10)
+    }
+    return ans.join('')
+};
+```
+
+### LeetCode [43] 字符串相乘
+``` javascript
+var multiply = function(num1, num2) {
+    let carry =0  , j=num2.length-1,ans=0 ,step =0.1
+    for (let i=num1.length-1 ;i>-1 ; i--){
+        let temp=0,temp1=[]
+        step *=10 
+        j=num2.length-1
+        carry=0
+        while(j>-1){ 
+            temp = Number(num1[i])* Number(num2[j]) +carry
+            carry = Math.floor(temp/10)
+            temp1.unshift(temp%10)
+            j--
+        }
+        if(carry) temp1.unshift(carry)
+        ans += Number(temp1.join(''))*step
+        console.log(ans>9007199254740992);
+    }
+    console.log(ans);
+};
+multiply("123456789",
+"987654321") // 丢失精度了
+```
