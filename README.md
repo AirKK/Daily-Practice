@@ -972,24 +972,111 @@ var addStrings = function(num1, num2) {
 ### LeetCode [43] 字符串相乘
 ``` javascript
 var multiply = function(num1, num2) {
-    let carry =0  , j=num2.length-1,ans=0 ,step =0.1
-    for (let i=num1.length-1 ;i>-1 ; i--){
-        let temp=0,temp1=[]
-        step *=10 
-        j=num2.length-1
-        carry=0
-        while(j>-1){ 
-            temp = Number(num1[i])* Number(num2[j]) +carry
+    if(Number(num1)===0||Number(num2)===0) return '0'
+    let ans=[0] ,i=0  
+    for (let j=num2.length-1 ; j>-1 ; j-- ){
+        let k =num1.length-1 ,v = i+1 ,carry=0
+        while(k>-1){
+            let temp = num2[j]*num1[k] 
+            temp += carry+ Number(ans[ans.length-v]?ans[ans.length-v]:'0') //本轮计算结果加上进位加上之前ans该分位上的数值
+            if (ans.length-v>-1)    ans[ans.length-v]= temp%10   //如果之前相加的结果ans 在该分位上有值则替换
+            else   ans.unshift(temp%10)                          //否则将值压入
             carry = Math.floor(temp/10)
-            temp1.unshift(temp%10)
-            j--
+            v++                                                  //分位+1 
+            k--
         }
-        if(carry) temp1.unshift(carry)
-        ans += Number(temp1.join(''))*step
-        console.log(ans>9007199254740992);
+        if(j-1<0&&!carry)  break  //如果是最后一次循环且没有进位退出循环
+        ans.unshift(carry)
+        i++
     }
-    console.log(ans);
+    return ans.join('')
 };
-multiply("123456789",
-"987654321") // 丢失精度了
+```
+
+## Day 14
+
+### LeetCode [155] 最小栈
+> 方法一：利用辅助栈（并不是最优解）
+``` javascript
+var MinStack = function() {
+    this.stack =[]
+    this.minStack= [Infinity]
+};
+
+MinStack.prototype.push = function(val) {
+    this.stack.push(val)
+    this.minStack.push(Math.min(val,this.minStack[this.minStack.length-1]))
+    return null
+};
+
+MinStack.prototype.pop = function() {
+    this.stack.pop()
+    this.minStack.pop()
+   return null
+};
+
+MinStack.prototype.top = function() {
+    return this.stack[this.stack.length-1]
+};
+
+MinStack.prototype.getMin = function() {
+    return this.minStack[this.minStack.length-1]
+};
+```
+>最优解，利用差值
+
+``` javascript
+var MinStack = function() {
+    this.stack =[]
+    this.min 
+};
+
+MinStack.prototype.push = function(val) {
+    if(this.stack.length==0) this.min=val
+    this.stack.push(val-this.min) //存入当前值与当前最小值的差值
+    this.min = (val-this.min)>0? this.min : val //若差值为负更新最小值
+    return null
+};
+
+MinStack.prototype.pop = function() {
+    let top =this.stack[this.stack.length-1]
+    //top>0 ----> 说明最后一次push操作没有更换最小值
+    // top<0  ---->说明最后一次push更换了最小值为val 根据 差值=val-min，就可以计算出上一个最小值
+    if (top<0){
+        this.min = this.min - this.stack[this.stack.length-1] //当前存储元素小于0，上一轮的最小值= 当前存储的最小值（this.min）-栈中存储值
+    } 
+     this.stack.pop()
+   return null
+};
+
+MinStack.prototype.top = function() {
+    let top =this.stack[this.stack.length-1]
+    return top>0? top + this.min : this.min  
+};
+
+MinStack.prototype.getMin = function() {
+    return this.min
+};
+```
+
+### LeetCode [20] 有效的括号
+
+``` javascript
+var isValid = function(s) {
+    let left , leftStr={'[':']','{':'}','(':')'},stack=[]
+    for (let i=0;i<s.length;i++){
+        if(s[i] in leftStr) {
+            left=s[i]
+            stack.push(s[i])
+            continue
+        }
+        if(s[i]===leftStr[left]){
+           stack.pop()
+            left=stack[stack.length-1]
+            continue
+        } 
+        return false
+    }
+    return stack.length===0? true :false
+};
 ```
