@@ -1080,3 +1080,49 @@ var isValid = function(s) {
     return stack.length===0? true :false
 };
 ```
+
+## Day 15
+
+### LeetCode [1047] 删除字符串中的所有相邻重复项
+
+``` javascript
+var removeDuplicates = function(s) {
+    let stack =[]
+    for (let i=0 ;i<s.length ;i++){
+        if(s[i]!=stack[stack.length-1]){
+            stack.push(s[i])
+        }
+        else{
+            stack.pop()
+        }
+    }
+    return stack.join('')
+};
+```
+
+### LeetCode [1209] 删除字符串中的所有相邻重复项 II
+
+``` javascript
+var removeDuplicates = function(s, k) {
+    let stack =[],count=[],j = 0
+    for (let i=0 ;i<s.length ; i++){
+        if(stack[stack.length-1]===s[i]){
+            if(count[count.length-1] ===k-1){    
+                stack.splice(stack.length-k+1)
+                count.splice(count.length-k+1)
+                j=count[count.length-1]  //当k个相邻相同元素移除栈后，j值等于count栈顶值（标记stack栈顶元素出现的次数）
+            }
+            else{
+               stack.push(s[i])
+               count.push(++j)
+            } 
+        }
+        else{
+            stack.push(s[i])
+            count.push(1)
+            j=1
+        }
+    }
+    return stack.join('')
+};
+```
