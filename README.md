@@ -1126,3 +1126,26 @@ var removeDuplicates = function(s, k) {
     return stack.join('')
 };
 ```
+
+## Day 16
+
+### LeetCode [239] 滑动窗口最大值
+
+``` javascript
+var maxSlidingWindow = function(nums, k) {
+  //维护一个单调递减队列
+    let queue =[],ans=[]
+    for (let i=0 ;i<nums.length;i++){
+        while(queue.length&&nums[i]>=nums[queue[queue.length-1]] ){
+            queue.pop()
+        }
+        queue.push(i)  //存储元素的索引
+        if(queue[0]<=i-k) queue.shift() //如果最大值不在窗口内则出队
+        if(i>=k-1){
+            ans.push(nums[queue[0]])
+        }
+    }
+    return ans
+};
+```
+
