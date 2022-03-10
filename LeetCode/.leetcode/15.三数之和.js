@@ -9,29 +9,25 @@
  * @param {number[]} nums
  * @return {number[][]}
  */
-var threeSum = function(nums) {
-    nums.sort((a,b)=>a-b)
-    let result=[] , j , k
-    for (let i=0 ; i<nums.length ; i++){
-        j = i+1
-        k = nums.length-1
-        if (nums[i]>0) return result
-        if (nums[i]===nums[i-1]) continue
-        while(j<k){
-            if(-nums[i] > nums[j]+nums[k]){
-                j++
-                continue
+ var threeSum = function(nums) {
+    nums.sort((a,b)=> a-b)
+    let ans=[]
+    for (let i=0 ; i<nums.length ;i++){
+        if(nums[i]>0) return ans
+        if(nums[i]===nums[i-1]) continue //防止重复
+        let k=i+1 , j=nums.length-1
+        while(j>k){
+            let temp = nums[i]+nums[j]+nums[k]
+            if (temp===0){
+                while(nums[j]===nums[j-1]) j--
+                while(nums[k]===nums[k+1]) k++
+                ans.push([nums[i],nums[k++],nums[j--]])
             }
-            if(-nums[i] < nums[j]+nums[k]){
-                k--
-                continue
-            }
-            while(nums[j]===nums[j+1]) j++
-            while(nums[k]===nums[k-1]) k--
-            result.push([nums[i],nums[j++],nums[k--]])
+            else if (temp>0)j--
+            else k++
         }
     }
-    return result
+    return ans
 };
 // @lc code=end
 
