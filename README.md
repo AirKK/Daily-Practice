@@ -1193,3 +1193,60 @@ RandomizedSet.prototype.getRandom = function() {
     return this.arr[random]
 };
 ```
+
+## Day 18
+
+### [144] 二叉树的前序遍历
+> 迭代法
+``` javascript
+var preorderTraversal = function(root) {
+    let ans=[],stack=[],p
+    if(!root) return ans
+    stack.push(root)
+    while(stack.length){
+        p=stack.pop()
+        ans.push(p.val)
+        if(p.right) stack.push(p.right)
+        if(p.left) stack.push(p.left)
+    }
+    return ans
+};
+```
+### [94] 二叉树的中序遍历
+> 迭代法
+``` javascript
+var inorderTraversal = function(root) {
+    let ans=[],stack=[],cur=root,node
+    if(!root) return ans
+    while(stack.length||cur){
+        while(cur){
+            stack.push(cur)
+            cur=cur.left
+        }
+        node = stack.pop()
+        ans.push(node.val) 
+        if(node.right){
+            cur=node.right
+        }
+    }
+    return ans
+};
+```
+### [145] 二叉树的后序遍历
+> 迭代法
+``` javascript
+var postorderTraversal = function(root) {
+    let ans=[],stack=[root],stack1=[],cur
+    if(!root) return ans
+    while(stack.length){
+        cur=stack.pop()
+        stack1.push(cur)
+        if(cur.left) stack.push(cur.left)
+        if(cur.right) stack.push(cur.right)
+    }
+    while(stack1.length){
+        ans.push(stack1.pop().val)
+    }
+    return ans
+};
+```
