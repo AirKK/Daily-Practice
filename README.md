@@ -1369,13 +1369,12 @@ var isBalanced = function(root) {
     if(!root) return true
     function helper (root){
         if(!root) return 0
-        if(helper(root.left)===false||helper(root.right)===false)   return false
-        let leftDeep = helper(root.left)+1
-        let rightDeep = helper(root.right)+1
-        if(Math.abs(leftDeep-rightDeep) >1) return false
-        return Math.max(leftDeep,rightDeep)
+        let leftDeep = helper(root.left)
+        let rightDeep = helper(root.right)
+        if(Math.abs(leftDeep-rightDeep) >1 ||leftDeep===-1||rightDeep===-1) return -1
+        return Math.max(leftDeep,rightDeep)+1
     }
-    return helper(root) 
+    return helper(root)>0
 };
 ```
 
@@ -1390,5 +1389,46 @@ var hasPathSum = function(root, targetSum) {
         return helper(root.left,sum+root.val) || helper(root.right,sum+root.val)
     }
     return helper(root,0)
+};
+```
+
+## Day 21
+
+> 复习
+
+### LeetCode [101] 对称二叉树
+> 迭代法
+``` javascript
+var isSymmetric = function(root) {
+   if (!root) return false
+   let queue=[root,root],flag=false
+   while(queue.length){
+       u = queue.shift()
+       v = queue.shift()
+       if (!u&&!v) continue
+       if(!u||!v ||u.val!=v.val) return false
+       queue.push(u.left)
+       queue.push(v.right)
+       if (!flag){
+           flag=true
+            continue  //根节点为相同节点只需要加入左右孩子
+       }
+       queue.push(u.right)
+       queue.push(v.left)
+   }
+   return true
+};
+```
+> 递归法
+``` javascript
+var isSymmetric = function(root) {
+   if (!root) return false
+   function helper (u,v){
+        if(!u&&!v) return true
+        if(!u||!v) return false
+        if (u.val===v.val&&helper(u.left,v.right)&&helper(u.right,v.left)) return true
+        return false
+   }
+   return helper(root,root)
 };
 ```

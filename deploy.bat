@@ -1,4 +1,4 @@
 git add .
-git commit -m"Day 20"
+git commit -m"Day 21"
 git push Daily-Practice
 git push origin
