@@ -1432,3 +1432,46 @@ var isSymmetric = function(root) {
    return helper(root,root)
 };
 ```
+
+## Day 22
+
+> 复习
+
+### LeetCode [230] 二叉搜索树中第K小的元素
+> 迭代法
+``` javascript
+var kthSmallest = function(root, k) {
+    let stack=[],cur=root
+    while(stack.length || cur){
+        while(cur){
+            stack.push(cur)
+            cur = cur.left
+        }
+        let node = stack.pop()      
+        k -=1                       
+        if(k===0) return node.val
+        if(node.right) cur=node.right
+    }
+};
+```
+
+### LeetCode [347] 前 K 个高频元素
+> 迭代法
+``` javascript
+var topKFrequent = function(nums, k) {
+    let map={} ,arr=[],ans=[]
+    for (let i=0 ; i<nums.length ; i++){
+        if (nums[i] in map) map[nums[i]]++
+        else map[nums[i]]=1
+    }
+    for (let i in map){
+        arr.push([map[i],i])
+    }
+    arr.sort((a,b)=>b[0]-a[0])
+    while(k){
+        ans.push(arr.shift()[1])
+        k--
+    }
+    return ans
+};
+```
