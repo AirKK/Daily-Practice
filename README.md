@@ -1475,3 +1475,73 @@ var topKFrequent = function(nums, k) {
     return ans
 };
 ```
+## Day 23
+
+> 学习实现堆的数据结构
+### 实现快排
+``` javascript
+function quickSort (arr){
+    if(!arr||arr.length<2) return arr
+    let left=[],right=[],pivot=arr.pop()
+    for (let i=0 ;i<arr.length;i++){
+        if(arr[i]<=pivot) left.push(arr[i])
+        if(arr[i]>pivot) right.push(arr[i])
+    }
+    return [...quickSort(left),pivot,...quickSort(right)]
+}
+```
+
+### LeetCode [347] 前 K 个高频元素
+> 小顶堆
+``` javascript
+var topKFrequent = function(nums, k) {
+    let map={} ,heap = []
+    for (let i=0 ; i<nums.length ; i++){
+        if (nums[i] in map) map[nums[i]]++
+        else map[nums[i]]=1
+    }
+    if(Object.keys(map).length <=k) return Object.keys(map)
+   
+    for (let i in map){
+        if(heap.length<k) {
+            heap.push(i)
+            if(heap.length===k){
+                buildHeap(heap,k,map)
+            }
+        }
+        else{
+            if(map[heap[0]] < map[i]){
+                heap[0]=i
+                heapfy(heap,k,0,map)
+            }
+        }
+    }
+    function buildHeap(heap,k,map){
+        //从最后一个非叶子节点开始堆化
+        for (let i=Math.floor((k-2)/2) ; i>=0 ; i--){
+            heapfy(heap,k,i,map)
+        }
+    }
+    function heapfy(heap,k,i,map){
+        while(true){
+            let parentIndex = i,leftIndex=2*parentIndex+1 , rightIndex=2*parentIndex+2
+            if (leftIndex<k && map[heap[parentIndex]]>map[heap[leftIndex]]) parentIndex = leftIndex
+            if (rightIndex<k && map[heap[parentIndex]]>map[heap[rightIndex]]) parentIndex = rightIndex
+            if(parentIndex!=i){
+            swap(i,parentIndex,heap)
+            i=parentIndex
+            }
+            else{
+                break
+            }
+        } 
+    }
+    function swap(a,b,heap){
+        let temp = heap[a]
+        heap[a]=heap[b]
+        heap[b]=temp
+    }
+    return heap
+}
+```
+
