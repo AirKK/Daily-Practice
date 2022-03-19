@@ -1545,3 +1545,170 @@ var topKFrequent = function(nums, k) {
 }
 ```
 
+## Day 24
+
+### LeetCode [384] 打乱数组
+``` javascript
+var Solution = function(nums) {
+    this.nums=nums
+};
+
+Solution.prototype.reset = function() {
+    return this.nums
+};
+
+Solution.prototype.shuffle = function() {
+    let temp = JSON.parse(JSON.stringify(this.nums)) ,length=temp.length //深拷贝nums
+    function swap(a,b,arr){
+        let temp = arr[a]
+        arr[a]=arr[b]
+        arr[b]=temp
+    }
+    //原地打乱数组
+    while(length){
+        let random = Math.floor(Math.random()*length) //产生随机数
+        swap(random,length-1,temp)  
+        length--
+    }
+    return temp
+};
+```
+
+### LeetCode [148] 排序链表
+> 参考冒泡排序
+``` javascript
+var sortList = function(head) {
+    if(!head) return head
+    let flag = false , cur
+    while(!flag){
+        flag = true //当整一次遍历没有发生位置调整退出循环
+        cur =head
+        while(cur.next){
+            let node = cur.next
+            if(cur.val>node.val){
+                flag = false
+                let temp = node.val
+                node.val = cur.val
+                cur.val = temp
+            }
+            cur=cur.next
+        }
+    }
+    return head
+};
+```
+
+## Day 25
+
+
+### LeetCode [148] 排序链表
+> 归并排序思想
+``` javascript
+var sortList = function(head) {
+    if(!head) return head
+    function mergeSort(head,tail){
+        if(!head||head.next===tail){
+            head.next=null //对于边界值的处理
+            return head
+        } 
+        let slow = head,fast=head
+        while(fast!==tail){
+            slow=slow.next
+            fast=fast.next
+            if(fast!==tail) fast=fast.next
+        }
+        return merge(mergeSort(head,slow),mergeSort(slow,tail))
+    }
+    // 合并两个有序链表
+    function merge(list1,list2){
+        let dummy = new ListNode(),p=list1,q=list2,v=dummy
+        while(p&&q){   
+                if(q.val<p.val){
+                    v.next=q
+                    q=q.next
+                } 
+                else{
+                   v.next=p
+                   p=p.next
+                } 
+                v=v.next
+        }
+        if(!p) v.next=q
+        if(!q) v.next=p
+        return dummy.next
+    }
+    return mergeSort(head,null)
+};
+```
+
+## Day 26
+
+
+### LeetCode [34] 在排序数组中查找元素的第一个和最后一个位置
+> 二分查找
+``` javascript
+var searchRange = function(nums, target) {
+        let half = Math.floor(nums.length/2) ,left=0,right=nums.length
+        while(true){
+            //当half=left或者=right的时候说明左右边界相遇了，中间没有元素了。如果当前元素为target则输出否则输出[-1,-1]
+            if(half===left||half===right){
+                if(nums[half]===target) return[half,half]
+                else return[-1,-1]
+            }
+            if(nums[half]>target){
+                right = half //右边界左移
+                half=left+Math.floor((right-left)/2) 
+            } 
+            else if(nums[half]<target) {
+                left=half //左边界右移
+                half=left+Math.floor((right-left)/2)
+            }
+            else{
+                let ans=[half,half],left=half,right=half
+                while(true){
+                    //如果当前元素的左右元素都不等于target退出循环
+                    if(nums[left-1]!=target&&nums[right+1]!=target) break
+                    //如果左边元素也等于target则将左边界左移，继续循环
+                    if(nums[left-1]===target){
+                        ans[0]=left-1
+                        left--
+                    } 
+                    //如果右边元素也等于target则将右边界右移，继续循环
+                    if(nums[right+1]===target){
+                        ans[1]=right+1
+                        right++
+                    } 
+                }
+                return ans
+            }
+        }
+};
+```
+
+### LeetCode [875] 爱吃香蕉的珂珂
+> 二分查找
+``` javascript
+var minEatingSpeed = function(piles, h) {
+    let left=0,right=Math.max(...piles)+1,ans
+    while(true){
+        if(left+1===right) return ans
+        half = left+ Math.floor((right-left)/2)
+        if(canFinish(half)){
+            right= half
+            ans = half
+        }
+        else{
+            left= half
+        }
+    }
+    function canFinish(ans){
+        let sum=0
+        for (let i=0 ; i<piles.length ; i++){
+            if(!piles[i]%ans) sum+=piles[i]/ans
+            else sum+= Math.ceil(piles[i]/ans)
+        }
+        if(sum>h) return false
+        else return true
+    }
+};
+```
