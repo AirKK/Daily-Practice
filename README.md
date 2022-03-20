@@ -1712,3 +1712,44 @@ var minEatingSpeed = function(piles, h) {
     }
 };
 ```
+
+## Day 27
+
+
+### LeetCode [70] 爬楼梯
+> 动态规划
+``` javascript
+var climbStairs = function(n) {
+    //因为f(1)=1,f(2)=2
+  let dp=[0,1,2]
+  // n>=3 的时候进入循环
+  for(let i=3;i<=n;i++ ){
+      dp[i]=dp[i-1]+dp[i-2]
+  }
+  return dp[n]
+};
+```
+
+### LeetCode [746] 使用最小花费爬楼梯
+> 动态规划
+``` javascript
+var minCostClimbingStairs = function(cost) {
+    let dp=[0,0,Math.min(cost[0],cost[1])]
+    let height =cost.length
+    for(let i=3;i<=height ;i++){
+        dp[i]=Math.min(dp[i-2]+cost[i-2],dp[i-1]+cost[i-1])
+    }
+    return dp[height]
+};
+```
+### LeetCode [53] 最大子数组和
+> 动态规划
+``` javascript
+var maxSubArray = function(nums) {
+    dp=[nums[0]]
+    for(let i=1; i<nums.length;i++){
+        dp[i]=Math.max(nums[i],dp[i-1]+nums[i])
+    }
+    return Math.max(...dp)
+};
+```
