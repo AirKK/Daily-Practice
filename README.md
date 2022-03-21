@@ -1753,3 +1753,53 @@ var maxSubArray = function(nums) {
     return Math.max(...dp)
 };
 ```
+
+## Day 28
+
+
+### LeetCode [121] 买卖股票的最佳时机
+> 动态规划
+``` javascript
+var maxProfit = function(prices) {
+    let min=Infinity,max=-Infinity
+    for(let i=1 ; i<prices.length;i++){
+        min = Math.min(min,prices[i-1])
+        max=Math.max(prices[i]-min,max)
+    }
+    return max>0 ? max:0
+};
+```
+
+### LeetCode [647] 回文子串
+> 动态规划
+``` javascript
+var countSubstrings = function(s) {
+    let dp=[],ans=0,length=s.length
+    //创建二维数组
+    for (let i=0 ;i<length;i++){
+        dp[i]=new Array(length).fill(false)
+    }
+    //注意遍历顺序因为要保证判断dp[i][j]的时候dp[i+1][j-1]必须是已知的
+    for (let i=length-1 ; i>=0 ;i--){
+        for (let j=i ; j<length;j++){
+            if(s[i]===s[j]){
+                //当首位字符相同'a'或者'aa'
+                if(j-i<=1){
+                    ans++
+                    dp[i][j]=true
+                }
+                //首位字符相同，间距超过1，要判断中间区域是否是回文子串
+                else {
+                    if(dp[i+1][j-1]){
+                        ans++
+                        dp[i][j]=true
+                    }
+                    else dp[i][j]=false
+                }
+            }
+            else dp[i][j]=false //首位不相同肯定不是回文子串
+        }
+    }
+    return ans
+};
+```
