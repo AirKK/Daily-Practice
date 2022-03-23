@@ -1872,3 +1872,80 @@ var minPathSum = function(grid) {
     return dp[grid.length-1][grid[0].length-1]
 };
 ```
+
+## Day 30
+
+### LeetCode [122] 买卖股票的最佳时机 II
+``` javascript
+var maxProfit = function(prices) {
+    let cur=prices[0],ans=0
+    for (let i=0 ; i<prices.length ;i++){
+        if(i+1===prices.length)  ans+= prices[i]- cur>0?prices[i]- cur :0
+        if (prices[i]>prices[i+1]){
+            if(prices[i]- cur>=0){
+                ans+=prices[i]- cur
+                cur=prices[i+1]
+            } 
+        } 
+    }
+    return ans
+};
+```
+> 贪心算法优化
+``` javascript
+var maxProfit = function(prices) {
+    let ans=0
+    for (let i=1 ; i<prices.length ;i++){
+       ans+= Math.max(0,prices[i]-prices[i-1])
+    }
+    return ans
+};
+```
+
+### LeetCode [455] 分发饼干
+``` javascript
+var findContentChildren = function(g, s) {
+    if(!g.length||!s.length) return 0
+    g.sort((a,b)=>a-b)
+    s.sort((a,b)=>a-b)
+    let i=0,j=0
+    while(i<g.length&&j<s.length){
+        if (s[j]>=g[i]) i++
+        j++
+    }
+    return i
+};
+```
+
+### LeetCode [659] 分割数组为连续子序列
+``` javascript
+var isPossible = function(nums) {
+    let countMap ={}, listMap= {}
+    //构造计数哈希表
+    for (let v of nums){
+        if(v in countMap) countMap[v]++
+        else countMap[v]=1
+    }
+    for (let i=0; i<nums.length; i++){
+        let temp =nums[i]
+        if(countMap[temp]){
+            if(!listMap[temp-1]) {
+                if(countMap[temp]&&countMap[temp+1]&&countMap[temp+2]){
+                    countMap[temp]--
+                    countMap[temp+1]--
+                    countMap[temp+2]--
+                    listMap[temp+2]=listMap[temp+2]?listMap[temp+2]+1:1
+                }
+                else return false
+            }
+            else{
+                listMap[temp-1]--
+                listMap[temp]=listMap[temp]?listMap[temp]+1:1
+                countMap[temp]--
+            }
+        }
+    }
+    return true
+};
+```
+
