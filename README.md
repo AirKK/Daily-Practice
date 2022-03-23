@@ -1803,3 +1803,72 @@ var countSubstrings = function(s) {
     return ans
 };
 ```
+
+## Day 29
+
+
+### LeetCode [5] 最长回文子串
+> 中心扩散
+``` javascript
+var longestPalindrome = function(s) {
+    let ans = [0,1,-Infinity]
+    for (let i=1 ; i<s.length ;i++){
+        let left = i-1,right=i+1
+            if (s[i]===s[left]||s[i]===s[right]){              
+                    while(s[left]===s[i]&&left>=0) left--
+                    while(s[right]===s[i]&&right<s.length) right++
+            }
+            while(s[left]===s[right]&&(left>=0||right<s.length)){
+                right++
+                left--
+            }
+            //注意这里循环出来后，实际上符合调剂的 left应该++，right应该--
+        if(right-left>ans[2]) ans=[left+1,right,right-left]
+    }
+    return s.slice(ans[0],ans[1])
+};
+```
+>动态规划
+``` javascript
+var longestPalindrome = function(s) {
+    //创建一个二维数组
+    const dp = new Array(s.length).fill(0).map(()=>[false]),length=s.length
+    let max=[0,0,-1]
+    for (let i=length-1 ; i>=0 ; i--){
+        for (let j=i ; j<length ;j++){
+            if(s[i]===s[j]){
+                if(j-i<=1){
+                    dp[i][j]=true
+                } 
+                else{
+                    if(dp[i+1][j-1]){
+                        dp[i][j]=true
+                    }
+                    else continue
+                } 
+                if(j-i>max[2]) max=[i,j,j-i]
+            }
+        }
+    }
+    return s.slice(max[0],max[1]+1)
+};
+```
+
+### LeetCode [64] 最小路径和
+> 动态规划
+``` javascript
+var minPathSum = function(grid) {
+    let dp = new Array(grid.length).fill(0).map(()=>[])
+    dp[0][0]=grid[0][0]
+    for (let i=0 ; i<grid.length; i++){
+        for (let j=0 ; j<grid[0].length ;j++){
+            if(i===0&&j!=0) dp[i][j]=dp[0][j-1]+grid[0][j]
+            else if(j===0&&i!=0) dp[i][0]=dp[i-1][0]+grid[i][0]
+            else if(i!=0&&j!=0) {
+                dp[i][j]=Math.min(dp[i][j-1],dp[i-1][j]) +grid[i][j]
+            }  
+        }
+    }
+    return dp[grid.length-1][grid[0].length-1]
+};
+```
