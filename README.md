@@ -1949,7 +1949,6 @@ var isPossible = function(nums) {
 };
 ```
 
-
 ## Day 31
 
 ### LeetCode [46] 全排列
@@ -2016,3 +2015,19 @@ var generateParenthesis = function (n) {
 ```
 
 
+
+
+
+## Day 32
+
+[数组扁平化去重排序](/%E6%89%8B%E5%86%99%E9%A2%98/数组扁平化去重排序.js)
+
+[数组中有对象或者数组的去重](/%E6%89%8B%E5%86%99%E9%A2%98/数组中有对象或者数组的去重.js)
+
+[腾讯：不产生新数组，删除数组里的重复元素](/%E6%89%8B%E5%86%99%E9%A2%98/腾讯：不产生新数组，删除数组里的重复元素.js)
+
+[实现一个findIndex函数](/%E6%89%8B%E5%86%99%E9%A2%98/实现一个findIndex函数.js)
+
+[字节：模拟实现Array.prototype.splice](/%E6%89%8B%E5%86%99%E9%A2%98/字节模拟实现Array.prototype.splice.js)
+
+[手写call.apply和bind](/%E6%89%8B%E5%86%99%E9%A2%98/手写call.apply和bind.js)
