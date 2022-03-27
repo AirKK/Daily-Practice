@@ -9,6 +9,7 @@
  * @param {number[]} prices
  * @return {number}
  */
+//贪心算法
 var maxProfit = function(prices) {
     let ans=0
     for (let i=1 ; i<prices.length ;i++){

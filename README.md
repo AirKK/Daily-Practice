@@ -1715,307 +1715,43 @@ var minEatingSpeed = function(piles, h) {
 
 ## Day 27
 
+[LeetCode70 爬楼梯](/LeetCode/.leetcode/70.%E7%88%AC%E6%A5%BC%E6%A2%AF.js)
 
-### LeetCode [70] 爬楼梯
-> 动态规划
-``` javascript
-var climbStairs = function(n) {
-    //因为f(1)=1,f(2)=2
-  let dp=[0,1,2]
-  // n>=3 的时候进入循环
-  for(let i=3;i<=n;i++ ){
-      dp[i]=dp[i-1]+dp[i-2]
-  }
-  return dp[n]
-};
-```
+[LeetCode746 使用最小花费爬楼梯](/LeetCode/.leetcode/746.%E4%BD%BF%E7%94%A8%E6%9C%80%E5%B0%8F%E8%8A%B1%E8%B4%B9%E7%88%AC%E6%A5%BC%E6%A2%AF.js)
 
-### LeetCode [746] 使用最小花费爬楼梯
-> 动态规划
-``` javascript
-var minCostClimbingStairs = function(cost) {
-    let dp=[0,0,Math.min(cost[0],cost[1])]
-    let height =cost.length
-    for(let i=3;i<=height ;i++){
-        dp[i]=Math.min(dp[i-2]+cost[i-2],dp[i-1]+cost[i-1])
-    }
-    return dp[height]
-};
-```
-### LeetCode [53] 最大子数组和
-> 动态规划
-``` javascript
-var maxSubArray = function(nums) {
-    dp=[nums[0]]
-    for(let i=1; i<nums.length;i++){
-        dp[i]=Math.max(nums[i],dp[i-1]+nums[i])
-    }
-    return Math.max(...dp)
-};
-```
+[LeetCode53 最大子数组和](/LeetCode/.leetcode/53.%E6%9C%80%E5%A4%A7%E5%AD%90%E6%95%B0%E7%BB%84%E5%92%8C.js)
+
 
 ## Day 28
 
+[LeetCode121 买卖股票的最佳时机](/LeetCode/.leetcode/121.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA.js)
 
-### LeetCode [121] 买卖股票的最佳时机
-> 动态规划
-``` javascript
-var maxProfit = function(prices) {
-    let min=Infinity,max=-Infinity
-    for(let i=1 ; i<prices.length;i++){
-        min = Math.min(min,prices[i-1])
-        max=Math.max(prices[i]-min,max)
-    }
-    return max>0 ? max:0
-};
-```
+[LeetCode647 回文子串](/LeetCode/.leetcode/647.%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2.js)
 
-### LeetCode [647] 回文子串
-> 动态规划
-``` javascript
-var countSubstrings = function(s) {
-    let dp=[],ans=0,length=s.length
-    //创建二维数组
-    for (let i=0 ;i<length;i++){
-        dp[i]=new Array(length).fill(false)
-    }
-    //注意遍历顺序因为要保证判断dp[i][j]的时候dp[i+1][j-1]必须是已知的
-    for (let i=length-1 ; i>=0 ;i--){
-        for (let j=i ; j<length;j++){
-            if(s[i]===s[j]){
-                //当首位字符相同'a'或者'aa'
-                if(j-i<=1){
-                    ans++
-                    dp[i][j]=true
-                }
-                //首位字符相同，间距超过1，要判断中间区域是否是回文子串
-                else {
-                    if(dp[i+1][j-1]){
-                        ans++
-                        dp[i][j]=true
-                    }
-                    else dp[i][j]=false
-                }
-            }
-            else dp[i][j]=false //首位不相同肯定不是回文子串
-        }
-    }
-    return ans
-};
-```
 
 ## Day 29
 
 
-### LeetCode [5] 最长回文子串
-> 中心扩散
-``` javascript
-var longestPalindrome = function(s) {
-    let ans = [0,1,-Infinity]
-    for (let i=1 ; i<s.length ;i++){
-        let left = i-1,right=i+1
-            if (s[i]===s[left]||s[i]===s[right]){              
-                    while(s[left]===s[i]&&left>=0) left--
-                    while(s[right]===s[i]&&right<s.length) right++
-            }
-            while(s[left]===s[right]&&(left>=0||right<s.length)){
-                right++
-                left--
-            }
-            //注意这里循环出来后，实际上符合调剂的 left应该++，right应该--
-        if(right-left>ans[2]) ans=[left+1,right,right-left]
-    }
-    return s.slice(ans[0],ans[1])
-};
-```
->动态规划
-``` javascript
-var longestPalindrome = function(s) {
-    //创建一个二维数组
-    const dp = new Array(s.length).fill(0).map(()=>[false]),length=s.length
-    let max=[0,0,-1]
-    for (let i=length-1 ; i>=0 ; i--){
-        for (let j=i ; j<length ;j++){
-            if(s[i]===s[j]){
-                if(j-i<=1){
-                    dp[i][j]=true
-                } 
-                else{
-                    if(dp[i+1][j-1]){
-                        dp[i][j]=true
-                    }
-                    else continue
-                } 
-                if(j-i>max[2]) max=[i,j,j-i]
-            }
-        }
-    }
-    return s.slice(max[0],max[1]+1)
-};
-```
+### 
+[LeetCode5 最长回文子串](/LeetCode/.leetcode/5.%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2.js)
 
-### LeetCode [64] 最小路径和
-> 动态规划
-``` javascript
-var minPathSum = function(grid) {
-    let dp = new Array(grid.length).fill(0).map(()=>[])
-    dp[0][0]=grid[0][0]
-    for (let i=0 ; i<grid.length; i++){
-        for (let j=0 ; j<grid[0].length ;j++){
-            if(i===0&&j!=0) dp[i][j]=dp[0][j-1]+grid[0][j]
-            else if(j===0&&i!=0) dp[i][0]=dp[i-1][0]+grid[i][0]
-            else if(i!=0&&j!=0) {
-                dp[i][j]=Math.min(dp[i][j-1],dp[i-1][j]) +grid[i][j]
-            }  
-        }
-    }
-    return dp[grid.length-1][grid[0].length-1]
-};
-```
+[LeetCode64 最小路径和](/LeetCode/.leetcode/64.%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C.js)
+
 
 ## Day 30
 
-### LeetCode [122] 买卖股票的最佳时机 II
-``` javascript
-var maxProfit = function(prices) {
-    let cur=prices[0],ans=0
-    for (let i=0 ; i<prices.length ;i++){
-        if(i+1===prices.length)  ans+= prices[i]- cur>0?prices[i]- cur :0
-        if (prices[i]>prices[i+1]){
-            if(prices[i]- cur>=0){
-                ans+=prices[i]- cur
-                cur=prices[i+1]
-            } 
-        } 
-    }
-    return ans
-};
-```
-> 贪心算法优化
-``` javascript
-var maxProfit = function(prices) {
-    let ans=0
-    for (let i=1 ; i<prices.length ;i++){
-       ans+= Math.max(0,prices[i]-prices[i-1])
-    }
-    return ans
-};
-```
+[LeetCode122 买卖股票的最佳时机 II](/LeetCode/.leetcode/122.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA-ii.js)
 
-### LeetCode [455] 分发饼干
-``` javascript
-var findContentChildren = function(g, s) {
-    if(!g.length||!s.length) return 0
-    g.sort((a,b)=>a-b)
-    s.sort((a,b)=>a-b)
-    let i=0,j=0
-    while(i<g.length&&j<s.length){
-        if (s[j]>=g[i]) i++
-        j++
-    }
-    return i
-};
-```
+[LeetCode455 分发饼干](/LeetCode/.leetcode/455.%E5%88%86%E5%8F%91%E9%A5%BC%E5%B9%B2.js)
 
-### LeetCode [659] 分割数组为连续子序列
-``` javascript
-var isPossible = function(nums) {
-    let countMap ={}, listMap= {}
-    //构造计数哈希表
-    for (let v of nums){
-        if(v in countMap) countMap[v]++
-        else countMap[v]=1
-    }
-    for (let i=0; i<nums.length; i++){
-        let temp =nums[i]
-        if(countMap[temp]){
-            if(!listMap[temp-1]) {
-                if(countMap[temp]&&countMap[temp+1]&&countMap[temp+2]){
-                    countMap[temp]--
-                    countMap[temp+1]--
-                    countMap[temp+2]--
-                    listMap[temp+2]=listMap[temp+2]?listMap[temp+2]+1:1
-                }
-                else return false
-            }
-            else{
-                listMap[temp-1]--
-                listMap[temp]=listMap[temp]?listMap[temp]+1:1
-                countMap[temp]--
-            }
-        }
-    }
-    return true
-};
-```
+[LeetCode659 分割数组为连续子序列](/LeetCode/.leetcode/659.%E5%88%86%E5%89%B2%E6%95%B0%E7%BB%84%E4%B8%BA%E8%BF%9E%E7%BB%AD%E5%AD%90%E5%BA%8F%E5%88%97.js)
+
 
 ## Day 31
-
-### LeetCode [46] 全排列
-
-```javascript
-var permute = function (nums) {
-  const n = nums.length;
-  let ans = [];
-  function backtrace(cur) {
-    if (cur === n) {
-      ans.push([...nums]); //nums变量指向的实际上是NUMS的地址，nums会复原
-      return;
-    }
-    for (let i = cur; i < n; i++) {
-      swap(nums, cur, i); //把当前元素放到第cur位置上，同时将原来cur上的元素提取表示未使用
-      backtrace(cur + 1);
-      swap(nums, cur, i);
-    }
-  }
-  function swap(arr, i, j) {
-    let temp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = temp;
-  }
-  backtrace(0);
-  return ans;
-};
-```
-
-### LeetCode [22] 括号生成
-
-```javascript
-var generateParenthesis = function (n) {
-  let ans = [],
-    arr = [];
-  function backtrace(left, right) {
-    //当左右括号都消耗光，输出序列
-    if (!left && !right) {
-      ans.push(arr.join(""));
-      return;
-    }
-    // 如果左右括号剩余个数相同，则该位置必须是左括号。
-    if (left === right) {
-      arr.push("(");
-      backtrace(left - 1, right);
-      arr.pop(); //复原
-      return;
-    }
-    //如果左括号比右括号少，那么该位置左右括号都能放
-    else if (left < right) {
-      if (left != 0) {
-        arr.push("(");
-        backtrace(left - 1, right);
-        arr.pop();
-      }
-      arr.push(")");
-      backtrace(left, right - 1);
-      arr.pop();
-    }
-  }
-  backtrace(n, n);
-  return ans;
-};
-```
+[LeetCode46 全排列](/LeetCode/.leetcode/46.%E5%85%A8%E6%8E%92%E5%88%97.js)
 
 
-
+[LeetCode22 括号生成](/LeetCode/.leetcode/22.括号生成.js)
 
 
 ## Day 32
@@ -2031,3 +1767,9 @@ var generateParenthesis = function (n) {
 [字节：模拟实现Array.prototype.splice](/%E6%89%8B%E5%86%99%E9%A2%98/字节模拟实现Array.prototype.splice.js)
 
 [手写call.apply和bind](/%E6%89%8B%E5%86%99%E9%A2%98/手写call.apply和bind.js)
+
+## Day 33
+
+[Object.create()以及JS继承方式](/%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/1.Object.create().md)
+
+[字节编程题：实现一个add方法](/%E6%89%8B%E5%86%99%E9%A2%98/字节编程题：实现一个add方法.js)
