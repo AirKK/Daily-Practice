@@ -444,640 +444,695 @@ console.log(arr1); //[ 1, 0, 0, 7, 9 ]
 
 ### css
 
-- 使用精灵图通过background访问图片的内容
-- 合并多个CSS文件减少http请求
-- 避免使用CSS表达式，例如：calc()
+- 使用精灵图通过 background 访问图片的内容
+- 合并多个 CSS 文件减少 http 请求
+- 避免使用 CSS 表达式，例如：calc()
 - 避免选择器嵌套过深，减少选择器的使用
 - 抽取公共样式减少代码量
-- 将CSS放在文件头部（css会阻塞渲染和js执行，先加载html的话会出现没有样式的页面体验差），js放在底部，因为js执行会堵塞html解析组织cssom构建（或者加上defer属性）
+- 将 CSS 放在文件头部（css 会阻塞渲染和 js 执行，先加载 html 的话会出现没有样式的页面体验差），js 放在底部，因为 js 执行会堵塞 html 解析组织 cssom 构建（或者加上 defer 属性）
 
 ### js
 
 - 防抖（一段时间重复的操作只执行一次）和节流（一段时间重复的操作按照设定执行几次）
 - 长列表滚动到可视区域时动态加载
 - 图片懒加载
-- DOM操作优化：
+- DOM 操作优化：
 
-   > 1.批量的添加DOM元素的时候可以先用createElemnet创建并添加节点后统一加入DOM树
-   >
-   > 2.避免通过操作dom添加style样式，减少重排（因为元素宽高发生变化浏览器需要重新计算构造渲染树）
-   >    
-   > 3.处理批量点击事件的时候可以给父节点绑定事件通过事件冒泡实现
+  > 1.批量的添加 DOM 元素的时候可以先用 createElemnet 创建并添加节点后统一加入 DOM 树
+  >
+  > 2.避免通过操作 dom 添加 style 样式，减少重排（因为元素宽高发生变化浏览器需要重新计算构造渲染树）
+  >
+  > 3.处理批量点击事件的时候可以给父节点绑定事件通过事件冒泡实现
 
 ### 网络
 
-- 采用gzip压缩（通过webpack CompressionPlugin）
-- 减少HTTP请求，使用HTTP2（其优势）
-  > 1.解析速度快 
-  > 
+- 采用 gzip 压缩（通过 webpack CompressionPlugin）
+- 减少 HTTP 请求，使用 HTTP2（其优势）
+  > 1.解析速度快
+  >
   > 2.多路复用
-  > 
-  > 3.http2提供首部压缩
-- 静态资源使用CDN
+  >
+  > 3.http2 提供首部压缩
+- 静态资源使用 CDN
 
 ## Day 7
 
 ### Object 和 Map 的比较
-||Map|Object|
-|--|:--|--|
-|意外的key|不存在|原型链上的键名可能会冲突，可以通过Object.create(null)创建一个没有原型的对象|
-|key的类型|可以是任意值|只能是String和Symbol|
-|key的顺序|有序的根据set的顺序返回键值（通过map.keys().value()获取）|无序的|
-|size|Map的键值对个数|只能通过Object.keys().length获取|
-|性能|在频繁增删的场景表现更好|未做优化|
+
+|            | Map                                                          | Object                                                                       |
+| ---------- | :----------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 意外的 key | 不存在                                                       | 原型链上的键名可能会冲突，可以通过 Object.create(null)创建一个没有原型的对象 |
+| key 的类型 | 可以是任意值                                                 | 只能是 String 和 Symbol                                                      |
+| key 的顺序 | 有序的根据 set 的顺序返回键值（通过 map.keys().value()获取） | 无序的                                                                       |
+| size       | Map 的键值对个数                                             | 只能通过 Object.keys().length 获取                                           |
+| 性能       | 在频繁增删的场景表现更好                                     | 未做优化                                                                     |
+
 </br>
 >### LeetCode[146] LRU (最近最少使用) 缓存
 
-方法一：采用Map实现（利用了map是有序的特性）
-``` javascript
+方法一：采用 Map 实现（利用了 map 是有序的特性）
+
+```javascript
 var LRUCache = function (capacity) {
-    this.capacity = capacity
-    this.useStack = new Map
+  this.capacity = capacity;
+  this.useStack = new Map();
 };
 
 LRUCache.prototype.get = function (key) {
-    if (key in this) {
-        this.useStack.delete(key)
-        this.useStack.set(key)  //使用后将元素放入队列末尾，map是由顺序的，按插入顺序
-        return this[key]
-    }
-    else {
-        return -1
-    }
+  if (key in this) {
+    this.useStack.delete(key);
+    this.useStack.set(key); //使用后将元素放入队列末尾，map是由顺序的，按插入顺序
+    return this[key];
+  } else {
+    return -1;
+  }
 };
 
 LRUCache.prototype.put = function (key, value) {
-    if (key in this) {
-        this[key] = value //存在则更新值
-        this.useStack.delete(key)
-        this.useStack.set(key)  //使用后将元素放入队列末尾
-        return null
+  if (key in this) {
+    this[key] = value; //存在则更新值
+    this.useStack.delete(key);
+    this.useStack.set(key); //使用后将元素放入队列末尾
+    return null;
+  } else {
+    console.log(this.useStack.size);
+    if (this.useStack.size < this.capacity) {
+      this[key] = value;
+      this.useStack.set(key);
+      return null;
+    } else {
+      delete this[this.useStack.keys().next().value]; //删除最久未使用过的元素(map开头的元素)
+      this[key] = value; //重新赋值
+      this.useStack.delete(this.useStack.keys().next().value);
+      this.useStack.set(key); //使用后将元素放入队列尾部
+      return null;
     }
-    else {
-        console.log(this.useStack.size);
-        if (this.useStack.size < this.capacity) {
-            this[key] = value
-            this.useStack.set(key)
-            return null
-        }
-        else {
-            delete this[this.useStack.keys().next().value] //删除最久未使用过的元素(map开头的元素)
-            this[key] = value //重新赋值
-            this.useStack.delete(this.useStack.keys().next().value)
-            this.useStack.set(key)  //使用后将元素放入队列尾部
-            return null
-        }
-    }
-
+  }
 };
 ```
+
 方法二：采用双向链表实现
-``` javascript
+
+```javascript
 //声明双向链表结构
-class listNode{
-    constructor(key,value){
-        this.key = key
-        this.value = value
-        this.next = null
-        this.pre = null
-    }
+class listNode {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+    this.next = null;
+    this.pre = null;
+  }
 }
-var LRUCache = function(capacity) {
-    this.map = new Map() //用来存放节点的信息方便删除节点
-    this.capacity = capacity
-    this.dummyHead = new listNode()
-    this.dummyTail = new listNode()
-    this.dummyHead.next = this.dummyTail //创建头结点
-    this.dummyTail.pre = this.dummyHead  //创建尾结点
+var LRUCache = function (capacity) {
+  this.map = new Map(); //用来存放节点的信息方便删除节点
+  this.capacity = capacity;
+  this.dummyHead = new listNode();
+  this.dummyTail = new listNode();
+  this.dummyHead.next = this.dummyTail; //创建头结点
+  this.dummyTail.pre = this.dummyHead; //创建尾结点
 };
 // 移除节点
-var removeListNode = function (node){
-    node.pre.next = node.next
-    node.next.pre = node.pre
-}
+var removeListNode = function (node) {
+  node.pre.next = node.next;
+  node.next.pre = node.pre;
+};
 //将节点加到链表首部
-var removeToHead = function (node,head){
-    node.next = head.next
-    node.pre = head
-    head.next.pre = node
-    head.next = node
-}
+var removeToHead = function (node, head) {
+  node.next = head.next;
+  node.pre = head;
+  head.next.pre = node;
+  head.next = node;
+};
 //移除链表尾部节点
-var removeToTail = function (tail){
-    tail.pre = tail.pre.pre
-    tail.pre.next =tail
-}
-
-
-LRUCache.prototype.get = function(key) {
-    if (this.map.has(key)){
-        let temp = this.map.get(key)//暂存节点
-        removeListNode(temp) //移除节点
-        removeToHead(temp,this.dummyHead)//移动节点至首部
-        return temp.value 
-    }
-    return -1
+var removeToTail = function (tail) {
+  tail.pre = tail.pre.pre;
+  tail.pre.next = tail;
 };
 
-LRUCache.prototype.put = function(key, value) {
-    if (this.map.has(key)){
-        let temp = this.map.get(key)//暂存节点
-        temp.value = value //重新赋值
-        removeListNode(temp) //移除节点
-        removeToHead(temp,this.dummyHead)//移动节点至首部
-        return null
-    }
-    console.log(this.map.size);
-    if(this.map.size>=this.capacity){
-        this.map.delete(this.dummyTail.pre.key)
-        removeToTail(this.dummyTail)//移除链表尾部节点 
-    }
-    let temp = new listNode(key,value)
-    removeToHead(temp,this.dummyHead)//移动节点至首部  
-    this.map.set(key,temp) //存储节点信息
-    return null
+LRUCache.prototype.get = function (key) {
+  if (this.map.has(key)) {
+    let temp = this.map.get(key); //暂存节点
+    removeListNode(temp); //移除节点
+    removeToHead(temp, this.dummyHead); //移动节点至首部
+    return temp.value;
+  }
+  return -1;
+};
+
+LRUCache.prototype.put = function (key, value) {
+  if (this.map.has(key)) {
+    let temp = this.map.get(key); //暂存节点
+    temp.value = value; //重新赋值
+    removeListNode(temp); //移除节点
+    removeToHead(temp, this.dummyHead); //移动节点至首部
+    return null;
+  }
+  console.log(this.map.size);
+  if (this.map.size >= this.capacity) {
+    this.map.delete(this.dummyTail.pre.key);
+    removeToTail(this.dummyTail); //移除链表尾部节点
+  }
+  let temp = new listNode(key, value);
+  removeToHead(temp, this.dummyHead); //移动节点至首部
+  this.map.set(key, temp); //存储节点信息
+  return null;
 };
 ```
 
 ## Day 8
->###  LeetCode[141] 环形链表
 
-解法一：利用Map的key可以使任意值得特性存储节点
-``` javascript
-var hasCycle = function(head) {
-    let map = new Map() , p = head
-    while(p){
-        if (map.has(p)){
-            return true
-        }
-        map.set(p)
-        p=p.next
+> ### LeetCode[141] 环形链表
+
+解法一：利用 Map 的 key 可以使任意值得特性存储节点
+
+```javascript
+var hasCycle = function (head) {
+  let map = new Map(),
+    p = head;
+  while (p) {
+    if (map.has(p)) {
+      return true;
     }
-    return false
-};
-```
- 解法二：快慢指针 : 空间复杂度为O(1)
-``` javascript
-var hasCycle = function(head) {
-    let  slow = head , fast = head
-    while(fast&&fast.next){
-        if (!fast.next.next) return false
-        slow = slow.next
-        fast = fast.next.next
-        if (fast===slow) return true
-    }
-    return false
-};
-```
-解法三：脏位，每遍历到一个节点设置一个tag标识已经遍历过
->### LeetCode[21]合并两个有序链表
- 方法一
-``` javascript
-var mergeTwoLists = function(list1, list2) {
-    let p1 = list1 , p2 = list2 ,dummyHead = new ListNode() ,p3 = dummyHead
-    while (p1 || p2){
-        p3.next = new ListNode()
-        if (p1?.val <= p2?.val ||!p2){
-            p3.next.val = p1.val
-            p1 = p1.next
-        }
-        else{
-            p3.next.val = p2.val
-            p2 = p2.next
-        }
-        p3 = p3.next
-        
-        
-    }
-    return dummyHead.next
-};
-```
- 方法二：递归的思想
-``` javascript
-var mergeTwoLists = function(list1, list2) {
-    let p1=list1 , p2=list2
-    if (!p1){
-        return p2
-    }
-    if(!p2){
-        return p1
-    }
-    if(p1.val<p2.val){
-        p1.next = mergeTwoLists(p1.next ,p2)
-        return p1
-    }
-    else{
-        p2.next = mergeTwoLists(p1 ,p2.next)
-        return p2
-    }
+    map.set(p);
+    p = p.next;
+  }
+  return false;
 };
 ```
 
->### 多个数组的交集
+解法二：快慢指针 : 空间复杂度为 O(1)
 
-``` javascript 
+```javascript
+var hasCycle = function (head) {
+  let slow = head,
+    fast = head;
+  while (fast && fast.next) {
+    if (!fast.next.next) return false;
+    slow = slow.next;
+    fast = fast.next.next;
+    if (fast === slow) return true;
+  }
+  return false;
+};
+```
+
+解法三：脏位，每遍历到一个节点设置一个 tag 标识已经遍历过
+
+> ### LeetCode[21]合并两个有序链表
+>
+> 方法一
+
+```javascript
+var mergeTwoLists = function (list1, list2) {
+  let p1 = list1,
+    p2 = list2,
+    dummyHead = new ListNode(),
+    p3 = dummyHead;
+  while (p1 || p2) {
+    p3.next = new ListNode();
+    if (p1?.val <= p2?.val || !p2) {
+      p3.next.val = p1.val;
+      p1 = p1.next;
+    } else {
+      p3.next.val = p2.val;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  return dummyHead.next;
+};
+```
+
+方法二：递归的思想
+
+```javascript
+var mergeTwoLists = function (list1, list2) {
+  let p1 = list1,
+    p2 = list2;
+  if (!p1) {
+    return p2;
+  }
+  if (!p2) {
+    return p1;
+  }
+  if (p1.val < p2.val) {
+    p1.next = mergeTwoLists(p1.next, p2);
+    return p1;
+  } else {
+    p2.next = mergeTwoLists(p1, p2.next);
+    return p2;
+  }
+};
+```
+
+> ### 多个数组的交集
+
+```javascript
 // 阿里算法题：编写一个函数计算多个数组的交集
-var intersection = function (...arrs){
-    arrs = arrs.reduce((pre,cur)=>{
-        let result =[]
-      for (let val of cur){
-          if (pre.includes(val)){
-            result.push(val)
-          }
-      } 
-      return Array.from(new Set(result))  
-    },)
-    return arrs
-}
+var intersection = function (...arrs) {
+  arrs = arrs.reduce((pre, cur) => {
+    let result = [];
+    for (let val of cur) {
+      if (pre.includes(val)) {
+        result.push(val);
+      }
+    }
+    return Array.from(new Set(result));
+  });
+  return arrs;
+};
 
-intersection([1,2,3],[2,4,6,3],[2,2,3,5])
+intersection([1, 2, 3], [2, 4, 6, 3], [2, 2, 3, 5]);
 ```
 
 ## Day 9
 
->### LeetCode[206] 反转链表
-方法一：
-```javascript
-var reverseList = function(head) {
-    let cur=head ,pre=null,temp
-    while(cur){
-       temp = cur.next
-       cur.next = pre
-       pre = cur
-       cur = temp
-    }
-    return pre
+> ### LeetCode[206] 反转链表
+>
+> 方法一：
 
+```javascript
+var reverseList = function (head) {
+  let cur = head,
+    pre = null,
+    temp;
+  while (cur) {
+    temp = cur.next;
+    cur.next = pre;
+    pre = cur;
+    cur = temp;
+  }
+  return pre;
 };
 ```
+
 方法二：递归
-```javascript
-var reverseList = function(head) {
-   while(head&&head.next){
-       let temp = reverseList(head.next)   
-       head.next.next = head
-       head.next = null
-       return temp 
-   }
-   return head
-};
-```
->### LeetCode[876] 链表的中间结点
 
 ```javascript
-var middleNode = function(head) {
-    let slow=head ,fast=head
-    while(fast){
-        slow=slow.next
-        fast=fast.next.next
+var reverseList = function (head) {
+  while (head && head.next) {
+    let temp = reverseList(head.next);
+    head.next.next = head;
+    head.next = null;
+    return temp;
+  }
+  return head;
+};
+```
+
+> ### LeetCode[876] 链表的中间结点
+
+```javascript
+var middleNode = function (head) {
+  let slow = head,
+    fast = head;
+  while (fast) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  return slow;
+};
+```
+
+> ### LeetCode[19] 删除链表的倒数第 N 个结点
+
+```javascript
+var removeNthFromEnd = function (head, n) {
+  let count = 1;
+  fn = function (head, n) {
+    while (head.next) {
+      head.next = fn(head.next, n); //递归到最后一个节点
+      if (++count === n) {
+        return head.next; //第n次出栈删除当前节点
+      }
+      return head;
     }
-    return slow
-};
-```
->### LeetCode[19] 删除链表的倒数第 N 个结点
-
-```javascript
-var removeNthFromEnd = function(head, n) {
-    let count =1
-    fn = function (head, n){
-        while(head.next){
-            head.next = fn(head.next,n) //递归到最后一个节点
-            if(++count===n){
-                return head.next //第n次出栈删除当前节点
-            }
-            return head
-        }
-        return n===1? null: head
-    } 
-    return fn(head, n)  
+    return n === 1 ? null : head;
+  };
+  return fn(head, n);
 };
 ```
 
 ## Day 10
 
->### LeetCode[160] 相交链表
-方法一：脏位
-``` javascript
-var getIntersectionNode = function(headA, headB) {
-    while (headA){
-        headA.tag ='A'
-        headA=headA.next
+> ### LeetCode[160] 相交链表
+>
+> 方法一：脏位
+
+```javascript
+var getIntersectionNode = function (headA, headB) {
+  while (headA) {
+    headA.tag = "A";
+    headA = headA.next;
+  }
+  while (headB) {
+    if (headB.tag === "A") {
+      return headB;
     }
-    while(headB){
-        if(headB.tag==='A'){
-            return headB
-        }
-        headB=headB.next
-    }
-    return null
+    headB = headB.next;
+  }
+  return null;
 };
 ```
+
 方法二：双指针法
-``` javascript
-var getIntersectionNode = function(headA, headB) {
-   if(!headA||!headB) return null
-   let p1 = headA , p2 = headB
-   while(p1!=p2){
-       p1 = p1==null? headB : p1.next //当B链表遍历完后，再去遍历A链表，最坏的情况A和B都遍历一遍都没有相等同时为null跳出循环
-       p2 = p2==null? headA : p2.next
-   }
-   return p1
+
+```javascript
+var getIntersectionNode = function (headA, headB) {
+  if (!headA || !headB) return null;
+  let p1 = headA,
+    p2 = headB;
+  while (p1 != p2) {
+    p1 = p1 == null ? headB : p1.next; //当B链表遍历完后，再去遍历A链表，最坏的情况A和B都遍历一遍都没有相等同时为null跳出循环
+    p2 = p2 == null ? headA : p2.next;
+  }
+  return p1;
 };
 ```
 
 ### LeetCode[611] 有效三角形的个数
-方法一：与n数之和一样采用回溯
-``` javascript
-var triangleNumber = function(nums) {
-    let stack =[],count=0
-    nums.sort((a,b)=> a-b)
-    fn = function(start){
-        if(stack.length===2 ){
-            let temp = stack[0]+stack[1]
-             while(start<nums.length){
-                if(temp>nums[start]){
-                count++
-                }
-                start++
-            }
-            return
+
+方法一：与 n 数之和一样采用回溯
+
+```javascript
+var triangleNumber = function (nums) {
+  let stack = [],
+    count = 0;
+  nums.sort((a, b) => a - b);
+  fn = function (start) {
+    if (stack.length === 2) {
+      let temp = stack[0] + stack[1];
+      while (start < nums.length) {
+        if (temp > nums[start]) {
+          count++;
         }
-        for (let i =start ;i<nums.length ;i++){
-            stack.push(nums[i])
-            fn(i+1)
-            stack.pop()
-        }       
+        start++;
+      }
+      return;
     }
-    fn(0)
-    return count
+    for (let i = start; i < nums.length; i++) {
+      stack.push(nums[i]);
+      fn(i + 1);
+      stack.pop();
+    }
+  };
+  fn(0);
+  return count;
 };
 ```
+
 方法二：双指针 逆序遍历
-``` javascript
-var triangleNumber = function(nums) {
-   nums.sort((a,b)=>a-b)
-    let i = 0 ,count = 0
-    for (let j = nums.length-1 ; j>1; j--){
-        let k = j-1,i = 0
-        while(k>i){
-            if(nums[i]+nums[k]>nums[j]){
-                count +=k-i //因为nums是升序的，较小的nums[i]符合则大于它的数一定符合
-                k--
-                i=0
-                continue
-            }
-            i++
-        }
+
+```javascript
+var triangleNumber = function (nums) {
+  nums.sort((a, b) => a - b);
+  let i = 0,
+    count = 0;
+  for (let j = nums.length - 1; j > 1; j--) {
+    let k = j - 1,
+      i = 0;
+    while (k > i) {
+      if (nums[i] + nums[k] > nums[j]) {
+        count += k - i; //因为nums是升序的，较小的nums[i]符合则大于它的数一定符合
+        k--;
+        i = 0;
+        continue;
+      }
+      i++;
     }
-    return count
+  }
+  return count;
 };
 ```
 
 ## Day 11
 
 ### LeetCode [42] 接雨水
->方法一：动态规划
-``` javascript
-var trap = function(height) {
-    const n = height.length;
-    if (n == 0) {
-        return 0;
-    }
 
-    const leftMax = new Array(n).fill(0);
-    leftMax[0] = height[0];
-    for (let i = 1; i < n; ++i) {
-        leftMax[i] = Math.max(leftMax[i - 1], height[i]);
-    }
+> 方法一：动态规划
 
-    const rightMax = new Array(n).fill(0);
-    rightMax[n - 1] = height[n - 1];
-    for (let i = n - 2; i >= 0; --i) {
-        rightMax[i] = Math.max(rightMax[i + 1], height[i]);
-    }
+```javascript
+var trap = function (height) {
+  const n = height.length;
+  if (n == 0) {
+    return 0;
+  }
 
-    let ans = 0;
-    for (let i = 0; i < n; ++i) {
-        ans += Math.min(leftMax[i], rightMax[i]) - height[i];
-    }
-    return ans;
-}
+  const leftMax = new Array(n).fill(0);
+  leftMax[0] = height[0];
+  for (let i = 1; i < n; ++i) {
+    leftMax[i] = Math.max(leftMax[i - 1], height[i]);
+  }
+
+  const rightMax = new Array(n).fill(0);
+  rightMax[n - 1] = height[n - 1];
+  for (let i = n - 2; i >= 0; --i) {
+    rightMax[i] = Math.max(rightMax[i + 1], height[i]);
+  }
+
+  let ans = 0;
+  for (let i = 0; i < n; ++i) {
+    ans += Math.min(leftMax[i], rightMax[i]) - height[i];
+  }
+  return ans;
+};
 ```
 
 ## Day 12
 
 ### LeetCode [42] 接雨水
->方法二：双指针法
-``` javascript
-var trap = function(height) {
-    const n = height.length;
-    if (n == 0) {
-        return 0;
-    }
 
-    const leftMax = new Array(n).fill(0);
-    leftMax[0] = height[0];
-    for (let i = 1; i < n; ++i) {
-        leftMax[i] = Math.max(leftMax[i - 1], height[i]);
-    }
+> 方法二：双指针法
 
-    const rightMax = new Array(n).fill(0);
-    rightMax[n - 1] = height[n - 1];
-    for (let i = n - 2; i >= 0; --i) {
-        rightMax[i] = Math.max(rightMax[i + 1], height[i]);
-    }
+```javascript
+var trap = function (height) {
+  const n = height.length;
+  if (n == 0) {
+    return 0;
+  }
 
-    let ans = 0;
-    for (let i = 0; i < n; ++i) {
-        ans += Math.min(leftMax[i], rightMax[i]) - height[i];
-    }
-    return ans;
-}
+  const leftMax = new Array(n).fill(0);
+  leftMax[0] = height[0];
+  for (let i = 1; i < n; ++i) {
+    leftMax[i] = Math.max(leftMax[i - 1], height[i]);
+  }
+
+  const rightMax = new Array(n).fill(0);
+  rightMax[n - 1] = height[n - 1];
+  for (let i = n - 2; i >= 0; --i) {
+    rightMax[i] = Math.max(rightMax[i + 1], height[i]);
+  }
+
+  let ans = 0;
+  for (let i = 0; i < n; ++i) {
+    ans += Math.min(leftMax[i], rightMax[i]) - height[i];
+  }
+  return ans;
+};
 ```
 
 ### LeetCode [151] 翻转字符串里的单词
 
-``` javascript
-var reverseWords = function(s) {
-    let flag = false  ,ans=[],temp=[]//标志遇到空格前有无字符串
-    for (let i=0 ; i<s.length ; i++){
-        if(s[i]===' '){
-            if(s[i+1]===' ' ||!s[i+1]){
-                continue
-            } 
-            if(flag){
-                //flag为true 说明前面有单词没有压入栈
-                flag =false
-                console.log(temp);
-                ans.unshift(' ',...temp) //空格隔开每个单词
-                temp=[]
-            }
-        }
-        else{
-            flag = true
-            temp.push(s[i])  
-        }
+```javascript
+var reverseWords = function (s) {
+  let flag = false,
+    ans = [],
+    temp = []; //标志遇到空格前有无字符串
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === " ") {
+      if (s[i + 1] === " " || !s[i + 1]) {
+        continue;
+      }
+      if (flag) {
+        //flag为true 说明前面有单词没有压入栈
+        flag = false;
+        console.log(temp);
+        ans.unshift(" ", ...temp); //空格隔开每个单词
+        temp = [];
+      }
+    } else {
+      flag = true;
+      temp.push(s[i]);
     }
-    ans.unshift(...temp) // 最后一个单词不需要加空格隔开
-    return ans.join('')
+  }
+  ans.unshift(...temp); // 最后一个单词不需要加空格隔开
+  return ans.join("");
 };
 ```
+
 ### LeetCode [14] 最长公共前缀
 
-``` javascript
-var longestCommonPrefix = function(strs) {
-    let ans = strs.reduce((pre,cur)=>{
-        let i = 0 ,count = 0
-        while(pre[i]) {
-            if(pre[i]===cur[i]){
-                count ++
-                i++
-                continue
-            }
-           break
-        }  
-         return count===0? '' : pre.substring(0,count)
-    },strs[0])
-    return ans? ans :''
+```javascript
+var longestCommonPrefix = function (strs) {
+  let ans = strs.reduce((pre, cur) => {
+    let i = 0,
+      count = 0;
+    while (pre[i]) {
+      if (pre[i] === cur[i]) {
+        count++;
+        i++;
+        continue;
+      }
+      break;
+    }
+    return count === 0 ? "" : pre.substring(0, count);
+  }, strs[0]);
+  return ans ? ans : "";
 };
 ```
 
 ## Day 13
 
 ### LeetCode [415] 字符串相加
+
 > 跟链表的两数相加一样的思想
-``` javascript
-var addStrings = function(num1, num2) {
-    let carry =0 ,i=num1.length-1 , j=num2.length-1,ans=[]
-    while(carry||i>-1||j>-1){
-        let temp =0
-        if(i>-1){
-            temp =  Number(num1[i])
-            i--
-        }
-        if(j>-1){
-            temp +=  Number(num2[j])
-            j--
-        }
-        if(carry){
-            temp += carry
-        }
-        carry = Math.floor(temp/10) 
-        ans.unshift(temp%10)
+
+```javascript
+var addStrings = function (num1, num2) {
+  let carry = 0,
+    i = num1.length - 1,
+    j = num2.length - 1,
+    ans = [];
+  while (carry || i > -1 || j > -1) {
+    let temp = 0;
+    if (i > -1) {
+      temp = Number(num1[i]);
+      i--;
     }
-    return ans.join('')
+    if (j > -1) {
+      temp += Number(num2[j]);
+      j--;
+    }
+    if (carry) {
+      temp += carry;
+    }
+    carry = Math.floor(temp / 10);
+    ans.unshift(temp % 10);
+  }
+  return ans.join("");
 };
 ```
 
 ### LeetCode [43] 字符串相乘
-``` javascript
-var multiply = function(num1, num2) {
-    if(Number(num1)===0||Number(num2)===0) return '0'
-    let ans=[0] ,i=0  
-    for (let j=num2.length-1 ; j>-1 ; j-- ){
-        let k =num1.length-1 ,v = i+1 ,carry=0
-        while(k>-1){
-            let temp = num2[j]*num1[k] 
-            temp += carry+ Number(ans[ans.length-v]?ans[ans.length-v]:'0') //本轮计算结果加上进位加上之前ans该分位上的数值
-            if (ans.length-v>-1)    ans[ans.length-v]= temp%10   //如果之前相加的结果ans 在该分位上有值则替换
-            else   ans.unshift(temp%10)                          //否则将值压入
-            carry = Math.floor(temp/10)
-            v++                                                  //分位+1 
-            k--
-        }
-        if(j-1<0&&!carry)  break  //如果是最后一次循环且没有进位退出循环
-        ans.unshift(carry)
-        i++
+
+```javascript
+var multiply = function (num1, num2) {
+  if (Number(num1) === 0 || Number(num2) === 0) return "0";
+  let ans = [0],
+    i = 0;
+  for (let j = num2.length - 1; j > -1; j--) {
+    let k = num1.length - 1,
+      v = i + 1,
+      carry = 0;
+    while (k > -1) {
+      let temp = num2[j] * num1[k];
+      temp += carry + Number(ans[ans.length - v] ? ans[ans.length - v] : "0"); //本轮计算结果加上进位加上之前ans该分位上的数值
+      if (ans.length - v > -1)
+        ans[ans.length - v] =
+          temp % 10; //如果之前相加的结果ans 在该分位上有值则替换
+      else ans.unshift(temp % 10); //否则将值压入
+      carry = Math.floor(temp / 10);
+      v++; //分位+1
+      k--;
     }
-    return ans.join('')
+    if (j - 1 < 0 && !carry) break; //如果是最后一次循环且没有进位退出循环
+    ans.unshift(carry);
+    i++;
+  }
+  return ans.join("");
 };
 ```
 
 ## Day 14
 
 ### LeetCode [155] 最小栈
+
 > 方法一：利用辅助栈（并不是最优解）
-``` javascript
-var MinStack = function() {
-    this.stack =[]
-    this.minStack= [Infinity]
+
+```javascript
+var MinStack = function () {
+  this.stack = [];
+  this.minStack = [Infinity];
 };
 
-MinStack.prototype.push = function(val) {
-    this.stack.push(val)
-    this.minStack.push(Math.min(val,this.minStack[this.minStack.length-1]))
-    return null
+MinStack.prototype.push = function (val) {
+  this.stack.push(val);
+  this.minStack.push(Math.min(val, this.minStack[this.minStack.length - 1]));
+  return null;
 };
 
-MinStack.prototype.pop = function() {
-    this.stack.pop()
-    this.minStack.pop()
-   return null
+MinStack.prototype.pop = function () {
+  this.stack.pop();
+  this.minStack.pop();
+  return null;
 };
 
-MinStack.prototype.top = function() {
-    return this.stack[this.stack.length-1]
+MinStack.prototype.top = function () {
+  return this.stack[this.stack.length - 1];
 };
 
-MinStack.prototype.getMin = function() {
-    return this.minStack[this.minStack.length-1]
+MinStack.prototype.getMin = function () {
+  return this.minStack[this.minStack.length - 1];
 };
 ```
->最优解，利用差值
 
-``` javascript
-var MinStack = function() {
-    this.stack =[]
-    this.min 
+> 最优解，利用差值
+
+```javascript
+var MinStack = function () {
+  this.stack = [];
+  this.min;
 };
 
-MinStack.prototype.push = function(val) {
-    if(this.stack.length==0) this.min=val
-    this.stack.push(val-this.min) //存入当前值与当前最小值的差值
-    this.min = (val-this.min)>0? this.min : val //若差值为负更新最小值
-    return null
+MinStack.prototype.push = function (val) {
+  if (this.stack.length == 0) this.min = val;
+  this.stack.push(val - this.min); //存入当前值与当前最小值的差值
+  this.min = val - this.min > 0 ? this.min : val; //若差值为负更新最小值
+  return null;
 };
 
-MinStack.prototype.pop = function() {
-    let top =this.stack[this.stack.length-1]
-    //top>0 ----> 说明最后一次push操作没有更换最小值
-    // top<0  ---->说明最后一次push更换了最小值为val 根据 差值=val-min，就可以计算出上一个最小值
-    if (top<0){
-        this.min = this.min - this.stack[this.stack.length-1] //当前存储元素小于0，上一轮的最小值= 当前存储的最小值（this.min）-栈中存储值
-    } 
-     this.stack.pop()
-   return null
+MinStack.prototype.pop = function () {
+  let top = this.stack[this.stack.length - 1];
+  //top>0 ----> 说明最后一次push操作没有更换最小值
+  // top<0  ---->说明最后一次push更换了最小值为val 根据 差值=val-min，就可以计算出上一个最小值
+  if (top < 0) {
+    this.min = this.min - this.stack[this.stack.length - 1]; //当前存储元素小于0，上一轮的最小值= 当前存储的最小值（this.min）-栈中存储值
+  }
+  this.stack.pop();
+  return null;
 };
 
-MinStack.prototype.top = function() {
-    let top =this.stack[this.stack.length-1]
-    return top>0? top + this.min : this.min  
+MinStack.prototype.top = function () {
+  let top = this.stack[this.stack.length - 1];
+  return top > 0 ? top + this.min : this.min;
 };
 
-MinStack.prototype.getMin = function() {
-    return this.min
+MinStack.prototype.getMin = function () {
+  return this.min;
 };
 ```
 
 ### LeetCode [20] 有效的括号
 
-``` javascript
-var isValid = function(s) {
-    let left , leftStr={'[':']','{':'}','(':')'},stack=[]
-    for (let i=0;i<s.length;i++){
-        if(s[i] in leftStr) {
-            left=s[i]
-            stack.push(s[i])
-            continue
-        }
-        if(s[i]===leftStr[left]){
-           stack.pop()
-            left=stack[stack.length-1]
-            continue
-        } 
-        return false
+```javascript
+var isValid = function (s) {
+  let left,
+    leftStr = { "[": "]", "{": "}", "(": ")" },
+    stack = [];
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] in leftStr) {
+      left = s[i];
+      stack.push(s[i]);
+      continue;
     }
-    return stack.length===0? true :false
+    if (s[i] === leftStr[left]) {
+      stack.pop();
+      left = stack[stack.length - 1];
+      continue;
+    }
+    return false;
+  }
+  return stack.length === 0 ? true : false;
 };
 ```
 
@@ -1085,45 +1140,44 @@ var isValid = function(s) {
 
 ### LeetCode [1047] 删除字符串中的所有相邻重复项
 
-``` javascript
-var removeDuplicates = function(s) {
-    let stack =[]
-    for (let i=0 ;i<s.length ;i++){
-        if(s[i]!=stack[stack.length-1]){
-            stack.push(s[i])
-        }
-        else{
-            stack.pop()
-        }
+```javascript
+var removeDuplicates = function (s) {
+  let stack = [];
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] != stack[stack.length - 1]) {
+      stack.push(s[i]);
+    } else {
+      stack.pop();
     }
-    return stack.join('')
+  }
+  return stack.join("");
 };
 ```
 
 ### LeetCode [1209] 删除字符串中的所有相邻重复项 II
 
-``` javascript
-var removeDuplicates = function(s, k) {
-    let stack =[],count=[],j = 0
-    for (let i=0 ;i<s.length ; i++){
-        if(stack[stack.length-1]===s[i]){
-            if(count[count.length-1] ===k-1){    
-                stack.splice(stack.length-k+1)
-                count.splice(count.length-k+1)
-                j=count[count.length-1]  //当k个相邻相同元素移除栈后，j值等于count栈顶值（标记stack栈顶元素出现的次数）
-            }
-            else{
-               stack.push(s[i])
-               count.push(++j)
-            } 
-        }
-        else{
-            stack.push(s[i])
-            count.push(1)
-            j=1
-        }
+```javascript
+var removeDuplicates = function (s, k) {
+  let stack = [],
+    count = [],
+    j = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (stack[stack.length - 1] === s[i]) {
+      if (count[count.length - 1] === k - 1) {
+        stack.splice(stack.length - k + 1);
+        count.splice(count.length - k + 1);
+        j = count[count.length - 1]; //当k个相邻相同元素移除栈后，j值等于count栈顶值（标记stack栈顶元素出现的次数）
+      } else {
+        stack.push(s[i]);
+        count.push(++j);
+      }
+    } else {
+      stack.push(s[i]);
+      count.push(1);
+      j = 1;
     }
-    return stack.join('')
+  }
+  return stack.join("");
 };
 ```
 
@@ -1131,264 +1185,308 @@ var removeDuplicates = function(s, k) {
 
 ### LeetCode [239] 滑动窗口最大值
 
-``` javascript
-var maxSlidingWindow = function(nums, k) {
+```javascript
+var maxSlidingWindow = function (nums, k) {
   //维护一个单调递减队列
-    let queue =[],ans=[]
-    for (let i=0 ;i<nums.length;i++){
-        while(queue.length&&nums[i]>=nums[queue[queue.length-1]] ){
-            queue.pop()
-        }
-        queue.push(i)  //存储元素的索引
-        if(queue[0]<=i-k) queue.shift() //如果最大值不在窗口内则出队
-        if(i>=k-1){
-            ans.push(nums[queue[0]])
-        }
+  let queue = [],
+    ans = [];
+  for (let i = 0; i < nums.length; i++) {
+    while (queue.length && nums[i] >= nums[queue[queue.length - 1]]) {
+      queue.pop();
     }
-    return ans
+    queue.push(i); //存储元素的索引
+    if (queue[0] <= i - k) queue.shift(); //如果最大值不在窗口内则出队
+    if (i >= k - 1) {
+      ans.push(nums[queue[0]]);
+    }
+  }
+  return ans;
 };
 ```
 
 ## Day 17
 
->复习
+> 复习
 
 ### LeetCode [380] O(1) 时间插入、删除和获取随机元素
-``` javascript
-var RandomizedSet = function() {
-    this.map = new Map
-    this.arr=[]
+
+```javascript
+var RandomizedSet = function () {
+  this.map = new Map();
+  this.arr = [];
 };
 
-/** 
+/**
  * @param {number} val
  * @return {boolean}
  */
-RandomizedSet.prototype.insert = function(val) {
-    if(this.map.has(val)) return false
-    this.map.set(val,this.arr.length)
-    this.arr.push(val)
-    return true
+RandomizedSet.prototype.insert = function (val) {
+  if (this.map.has(val)) return false;
+  this.map.set(val, this.arr.length);
+  this.arr.push(val);
+  return true;
 };
 
-/** 
+/**
  * @param {number} val
  * @return {boolean}
  */
-RandomizedSet.prototype.remove = function(val) {
-    if(!this.map.has(val)) return false
-    let index = this.map.get(val) , temp = this.arr[this.arr.length-1]
-    this.map.set(temp,index) //更新map存储的位置
-    this.arr[index]=temp
-    this.arr.pop()
-    this.map.delete(val)
-    return true
+RandomizedSet.prototype.remove = function (val) {
+  if (!this.map.has(val)) return false;
+  let index = this.map.get(val),
+    temp = this.arr[this.arr.length - 1];
+  this.map.set(temp, index); //更新map存储的位置
+  this.arr[index] = temp;
+  this.arr.pop();
+  this.map.delete(val);
+  return true;
 };
 
 /**
  * @return {number}
  */
-RandomizedSet.prototype.getRandom = function() {
-    let random = Math.floor( Math.random()*(this.arr.length)) //生成0-元素个数的随机整数
-    return this.arr[random]
+RandomizedSet.prototype.getRandom = function () {
+  let random = Math.floor(Math.random() * this.arr.length); //生成0-元素个数的随机整数
+  return this.arr[random];
 };
 ```
 
 ## Day 18
 
 ### LeetCode [144] 二叉树的前序遍历
+
 > 迭代法
-``` javascript
-var preorderTraversal = function(root) {
-    let ans=[],stack=[],p
-    if(!root) return ans
-    stack.push(root)
-    while(stack.length){
-        p=stack.pop()
-        ans.push(p.val)
-        if(p.right) stack.push(p.right)
-        if(p.left) stack.push(p.left)
-    }
-    return ans
+
+```javascript
+var preorderTraversal = function (root) {
+  let ans = [],
+    stack = [],
+    p;
+  if (!root) return ans;
+  stack.push(root);
+  while (stack.length) {
+    p = stack.pop();
+    ans.push(p.val);
+    if (p.right) stack.push(p.right);
+    if (p.left) stack.push(p.left);
+  }
+  return ans;
 };
 ```
+
 ### LeetCode [94] 二叉树的中序遍历
+
 > 迭代法
-``` javascript
-var inorderTraversal = function(root) {
-    let ans=[],stack=[],cur=root,node
-    if(!root) return ans
-    while(stack.length||cur){
-        while(cur){
-            stack.push(cur)
-            cur=cur.left
-        }
-        node = stack.pop()
-        ans.push(node.val) 
-        if(node.right){
-            cur=node.right
-        }
+
+```javascript
+var inorderTraversal = function (root) {
+  let ans = [],
+    stack = [],
+    cur = root,
+    node;
+  if (!root) return ans;
+  while (stack.length || cur) {
+    while (cur) {
+      stack.push(cur);
+      cur = cur.left;
     }
-    return ans
+    node = stack.pop();
+    ans.push(node.val);
+    if (node.right) {
+      cur = node.right;
+    }
+  }
+  return ans;
 };
 ```
+
 ### LeetCode [145] 二叉树的后序遍历
+
 > 迭代法
-``` javascript
-var postorderTraversal = function(root) {
-    let ans=[],stack=[root],stack1=[],cur
-    if(!root) return ans
-    while(stack.length){
-        cur=stack.pop()
-        stack1.push(cur)
-        if(cur.left) stack.push(cur.left)
-        if(cur.right) stack.push(cur.right)
-    }
-    while(stack1.length){
-        ans.push(stack1.pop().val)
-    }
-    return ans
+
+```javascript
+var postorderTraversal = function (root) {
+  let ans = [],
+    stack = [root],
+    stack1 = [],
+    cur;
+  if (!root) return ans;
+  while (stack.length) {
+    cur = stack.pop();
+    stack1.push(cur);
+    if (cur.left) stack.push(cur.left);
+    if (cur.right) stack.push(cur.right);
+  }
+  while (stack1.length) {
+    ans.push(stack1.pop().val);
+  }
+  return ans;
 };
 ```
 
 ## Day 19
 
 ### LeetCode [102] 二叉树的层序遍历
-> 广度优先搜索BFS
-``` javascript
-var levelOrder = function(root) {
-    let ans=[],queue=[]
-    if(!root) return ans
-    queue.push([root,0])
-    while(queue.length){
-        let temp = queue.shift(),node=temp[0],pos=temp[1]
-        if(ans[pos])    ans[pos].push(node.val)
-        else ans.push([node.val])
-        let index = ++pos
-        if(node.left) queue.push([node.left,index])
-        if(node.right) queue.push([node.right,index])
-    }
-    return ans
+
+> 广度优先搜索 BFS
+
+```javascript
+var levelOrder = function (root) {
+  let ans = [],
+    queue = [];
+  if (!root) return ans;
+  queue.push([root, 0]);
+  while (queue.length) {
+    let temp = queue.shift(),
+      node = temp[0],
+      pos = temp[1];
+    if (ans[pos]) ans[pos].push(node.val);
+    else ans.push([node.val]);
+    let index = ++pos;
+    if (node.left) queue.push([node.left, index]);
+    if (node.right) queue.push([node.right, index]);
+  }
+  return ans;
 };
 ```
->优化一下，不需要二元组存放level
 
-``` javascript
-var levelOrder = function(root) {
-    let ans=[],queue=[]
-    if(!root) return ans
-    queue.push(root)
-    while(queue.length){
-        let arr=[],num = queue.length
-        for (let i=0;i<num;i++){
-            let node = queue.shift()
-            arr.push(node.val)
-            if(node.left) queue.push(node.left)
-            if(node.right) queue.push(node.right)
-        }
-        ans.push(arr)
+> 优化一下，不需要二元组存放 level
+
+```javascript
+var levelOrder = function (root) {
+  let ans = [],
+    queue = [];
+  if (!root) return ans;
+  queue.push(root);
+  while (queue.length) {
+    let arr = [],
+      num = queue.length;
+    for (let i = 0; i < num; i++) {
+      let node = queue.shift();
+      arr.push(node.val);
+      if (node.left) queue.push(node.left);
+      if (node.right) queue.push(node.right);
     }
-    return ans
+    ans.push(arr);
+  }
+  return ans;
 };
 ```
 
 ### LeetCode [105] 从前序与中序遍历序列构造二叉树
-``` javascript
-var buildTree = function(preorder, inorder) {
-    let posMap = new Map()
-    for (let i=0;i<inorder.length;i++){
-        posMap.set(inorder[i],i)
-    }
-    function helper(preLeft,preEnd,inLeft,inRight){
-        if(preLeft>preEnd || inLeft>inRight) return null
-        let root = new TreeNode(preorder[preLeft])
-        let num = posMap.get(preorder[preLeft])-inLeft //计算左子树的节点个数
-        root.left = helper(preLeft+1,preLeft+num,inLeft,num+inLeft-1)
-        root.right = helper(preLeft+num+1,preEnd,num+inLeft+1,inRight)
-        return root
-    }
-    return helper(0,preorder.length-1,0,inorder.length)
+
+```javascript
+var buildTree = function (preorder, inorder) {
+  let posMap = new Map();
+  for (let i = 0; i < inorder.length; i++) {
+    posMap.set(inorder[i], i);
+  }
+  function helper(preLeft, preEnd, inLeft, inRight) {
+    if (preLeft > preEnd || inLeft > inRight) return null;
+    let root = new TreeNode(preorder[preLeft]);
+    let num = posMap.get(preorder[preLeft]) - inLeft; //计算左子树的节点个数
+    root.left = helper(preLeft + 1, preLeft + num, inLeft, num + inLeft - 1);
+    root.right = helper(preLeft + num + 1, preEnd, num + inLeft + 1, inRight);
+    return root;
+  }
+  return helper(0, preorder.length - 1, 0, inorder.length);
 };
 ```
 
 ### LeetCode [106] 从中序与后序遍历序列构造二叉树
-``` javascript
-var buildTree = function(inorder, postorder) {
-    let map = new Map
-    for (let i=0 ;i<inorder.length; i++){
-        map.set(inorder[i],i)
-    }
-    function helper(posLeft,posRight,inLeft,inRight){
-        if(posLeft>posRight || inLeft>inRight) return null
-        let root = new TreeNode(postorder[posRight])
-        let index = map.get(postorder[posRight]) // 获取当前节点在中序序列的位置
-        let num = inRight-index  // 记录右子树节点个数
-        root.right = helper(posRight-num,posRight-1,index+1,inRight)
-        root.left = helper(posLeft,posRight-num-1,inLeft,index-1)
-        return root
-    }
-    return helper(0,postorder.length-1,0,inorder.length-1)
+
+```javascript
+var buildTree = function (inorder, postorder) {
+  let map = new Map();
+  for (let i = 0; i < inorder.length; i++) {
+    map.set(inorder[i], i);
+  }
+  function helper(posLeft, posRight, inLeft, inRight) {
+    if (posLeft > posRight || inLeft > inRight) return null;
+    let root = new TreeNode(postorder[posRight]);
+    let index = map.get(postorder[posRight]); // 获取当前节点在中序序列的位置
+    let num = inRight - index; // 记录右子树节点个数
+    root.right = helper(posRight - num, posRight - 1, index + 1, inRight);
+    root.left = helper(posLeft, posRight - num - 1, inLeft, index - 1);
+    return root;
+  }
+  return helper(0, postorder.length - 1, 0, inorder.length - 1);
 };
 ```
 
 ## Day 20
 
 ### LeetCode [104] 二叉树的最大深度
-> 广度优先搜索BFS
-``` javascript
-var maxDepth = function(root) {
-    let ans=[],queue=[root],deep=0
-    if(!root) return deep
-    while(queue.length){
-        deep++
-        let num = queue.length
-        for(let i=0;i<num;i++){
-            let node = queue.shift()
-            if(node.left) queue.push(node.left)
-            if(node.right) queue.push(node.right)
-        }
+
+> 广度优先搜索 BFS
+
+```javascript
+var maxDepth = function (root) {
+  let ans = [],
+    queue = [root],
+    deep = 0;
+  if (!root) return deep;
+  while (queue.length) {
+    deep++;
+    let num = queue.length;
+    for (let i = 0; i < num; i++) {
+      let node = queue.shift();
+      if (node.left) queue.push(node.left);
+      if (node.right) queue.push(node.right);
     }
-    return deep
+  }
+  return deep;
 };
 ```
 
 ### LeetCode [236] 二叉树的最近公共祖先
-``` javascript
-var lowestCommonAncestor = function(root, p, q) {
-    if(!root || root===p || root===q) return root
-    let leftChild = lowestCommonAncestor(root.left,p,q)
-    let rightChild = lowestCommonAncestor(root.right,p,q)
-    if (!leftChild) return rightChild
-    if(!rightChild) return leftChild
-    return root
+
+```javascript
+var lowestCommonAncestor = function (root, p, q) {
+  if (!root || root === p || root === q) return root;
+  let leftChild = lowestCommonAncestor(root.left, p, q);
+  let rightChild = lowestCommonAncestor(root.right, p, q);
+  if (!leftChild) return rightChild;
+  if (!rightChild) return leftChild;
+  return root;
 };
 ```
+
 ### LeetCode [110] 平衡二叉树
-``` javascript
-var isBalanced = function(root) {
-    if(!root) return true
-    function helper (root){
-        if(!root) return 0
-        let leftDeep = helper(root.left)
-        let rightDeep = helper(root.right)
-        if(Math.abs(leftDeep-rightDeep) >1 ||leftDeep===-1||rightDeep===-1) return -1
-        return Math.max(leftDeep,rightDeep)+1
-    }
-    return helper(root)>0
+
+```javascript
+var isBalanced = function (root) {
+  if (!root) return true;
+  function helper(root) {
+    if (!root) return 0;
+    let leftDeep = helper(root.left);
+    let rightDeep = helper(root.right);
+    if (
+      Math.abs(leftDeep - rightDeep) > 1 ||
+      leftDeep === -1 ||
+      rightDeep === -1
+    )
+      return -1;
+    return Math.max(leftDeep, rightDeep) + 1;
+  }
+  return helper(root) > 0;
 };
 ```
 
 ### LeetCode [112] 路径总和
-``` javascript
-var hasPathSum = function(root, targetSum) {
-    function helper (root,sum){
-        if (!root) return false
-         if(!root.left&&!root.right){
-             return sum+root.val === targetSum ? true :false
-         }
-        return helper(root.left,sum+root.val) || helper(root.right,sum+root.val)
+
+```javascript
+var hasPathSum = function (root, targetSum) {
+  function helper(root, sum) {
+    if (!root) return false;
+    if (!root.left && !root.right) {
+      return sum + root.val === targetSum ? true : false;
     }
-    return helper(root,0)
+    return (
+      helper(root.left, sum + root.val) || helper(root.right, sum + root.val)
+    );
+  }
+  return helper(root, 0);
 };
 ```
 
@@ -1397,39 +1495,45 @@ var hasPathSum = function(root, targetSum) {
 > 复习
 
 ### LeetCode [101] 对称二叉树
+
 > 迭代法
-``` javascript
-var isSymmetric = function(root) {
-   if (!root) return false
-   let queue=[root,root],flag=false
-   while(queue.length){
-       u = queue.shift()
-       v = queue.shift()
-       if (!u&&!v) continue
-       if(!u||!v ||u.val!=v.val) return false
-       queue.push(u.left)
-       queue.push(v.right)
-       if (!flag){
-           flag=true
-            continue  //根节点为相同节点只需要加入左右孩子
-       }
-       queue.push(u.right)
-       queue.push(v.left)
-   }
-   return true
+
+```javascript
+var isSymmetric = function (root) {
+  if (!root) return false;
+  let queue = [root, root],
+    flag = false;
+  while (queue.length) {
+    u = queue.shift();
+    v = queue.shift();
+    if (!u && !v) continue;
+    if (!u || !v || u.val != v.val) return false;
+    queue.push(u.left);
+    queue.push(v.right);
+    if (!flag) {
+      flag = true;
+      continue; //根节点为相同节点只需要加入左右孩子
+    }
+    queue.push(u.right);
+    queue.push(v.left);
+  }
+  return true;
 };
 ```
+
 > 递归法
-``` javascript
-var isSymmetric = function(root) {
-   if (!root) return false
-   function helper (u,v){
-        if(!u&&!v) return true
-        if(!u||!v) return false
-        if (u.val===v.val&&helper(u.left,v.right)&&helper(u.right,v.left)) return true
-        return false
-   }
-   return helper(root,root)
+
+```javascript
+var isSymmetric = function (root) {
+  if (!root) return false;
+  function helper(u, v) {
+    if (!u && !v) return true;
+    if (!u || !v) return false;
+    if (u.val === v.val && helper(u.left, v.right) && helper(u.right, v.left))
+      return true;
+    return false;
+  }
+  return helper(root, root);
 };
 ```
 
@@ -1437,339 +1541,383 @@ var isSymmetric = function(root) {
 
 > 复习
 
-### LeetCode [230] 二叉搜索树中第K小的元素
+### LeetCode [230] 二叉搜索树中第 K 小的元素
+
 > 迭代法
-``` javascript
-var kthSmallest = function(root, k) {
-    let stack=[],cur=root
-    while(stack.length || cur){
-        while(cur){
-            stack.push(cur)
-            cur = cur.left
-        }
-        let node = stack.pop()      
-        k -=1                       
-        if(k===0) return node.val
-        if(node.right) cur=node.right
+
+```javascript
+var kthSmallest = function (root, k) {
+  let stack = [],
+    cur = root;
+  while (stack.length || cur) {
+    while (cur) {
+      stack.push(cur);
+      cur = cur.left;
     }
+    let node = stack.pop();
+    k -= 1;
+    if (k === 0) return node.val;
+    if (node.right) cur = node.right;
+  }
 };
 ```
 
 ### LeetCode [347] 前 K 个高频元素
+
 > 迭代法
-``` javascript
-var topKFrequent = function(nums, k) {
-    let map={} ,arr=[],ans=[]
-    for (let i=0 ; i<nums.length ; i++){
-        if (nums[i] in map) map[nums[i]]++
-        else map[nums[i]]=1
-    }
-    for (let i in map){
-        arr.push([map[i],i])
-    }
-    arr.sort((a,b)=>b[0]-a[0])
-    while(k){
-        ans.push(arr.shift()[1])
-        k--
-    }
-    return ans
+
+```javascript
+var topKFrequent = function (nums, k) {
+  let map = {},
+    arr = [],
+    ans = [];
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] in map) map[nums[i]]++;
+    else map[nums[i]] = 1;
+  }
+  for (let i in map) {
+    arr.push([map[i], i]);
+  }
+  arr.sort((a, b) => b[0] - a[0]);
+  while (k) {
+    ans.push(arr.shift()[1]);
+    k--;
+  }
+  return ans;
 };
 ```
+
 ## Day 23
 
 > 学习实现堆的数据结构
+
 ### 实现快排
-``` javascript
-function quickSort (arr){
-    if(!arr||arr.length<2) return arr
-    let left=[],right=[],pivot=arr.pop()
-    for (let i=0 ;i<arr.length;i++){
-        if(arr[i]<=pivot) left.push(arr[i])
-        if(arr[i]>pivot) right.push(arr[i])
-    }
-    return [...quickSort(left),pivot,...quickSort(right)]
+
+```javascript
+function quickSort(arr) {
+  if (!arr || arr.length < 2) return arr;
+  let left = [],
+    right = [],
+    pivot = arr.pop();
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] <= pivot) left.push(arr[i]);
+    if (arr[i] > pivot) right.push(arr[i]);
+  }
+  return [...quickSort(left), pivot, ...quickSort(right)];
 }
 ```
 
 ### LeetCode [347] 前 K 个高频元素
+
 > 小顶堆
-``` javascript
-var topKFrequent = function(nums, k) {
-    let map={} ,heap = []
-    for (let i=0 ; i<nums.length ; i++){
-        if (nums[i] in map) map[nums[i]]++
-        else map[nums[i]]=1
+
+```javascript
+var topKFrequent = function (nums, k) {
+  let map = {},
+    heap = [];
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] in map) map[nums[i]]++;
+    else map[nums[i]] = 1;
+  }
+  if (Object.keys(map).length <= k) return Object.keys(map);
+
+  for (let i in map) {
+    if (heap.length < k) {
+      heap.push(i);
+      if (heap.length === k) {
+        buildHeap(heap, k, map);
+      }
+    } else {
+      if (map[heap[0]] < map[i]) {
+        heap[0] = i;
+        heapfy(heap, k, 0, map);
+      }
     }
-    if(Object.keys(map).length <=k) return Object.keys(map)
-   
-    for (let i in map){
-        if(heap.length<k) {
-            heap.push(i)
-            if(heap.length===k){
-                buildHeap(heap,k,map)
-            }
-        }
-        else{
-            if(map[heap[0]] < map[i]){
-                heap[0]=i
-                heapfy(heap,k,0,map)
-            }
-        }
+  }
+  function buildHeap(heap, k, map) {
+    //从最后一个非叶子节点开始堆化
+    for (let i = Math.floor((k - 2) / 2); i >= 0; i--) {
+      heapfy(heap, k, i, map);
     }
-    function buildHeap(heap,k,map){
-        //从最后一个非叶子节点开始堆化
-        for (let i=Math.floor((k-2)/2) ; i>=0 ; i--){
-            heapfy(heap,k,i,map)
-        }
+  }
+  function heapfy(heap, k, i, map) {
+    while (true) {
+      let parentIndex = i,
+        leftIndex = 2 * parentIndex + 1,
+        rightIndex = 2 * parentIndex + 2;
+      if (leftIndex < k && map[heap[parentIndex]] > map[heap[leftIndex]])
+        parentIndex = leftIndex;
+      if (rightIndex < k && map[heap[parentIndex]] > map[heap[rightIndex]])
+        parentIndex = rightIndex;
+      if (parentIndex != i) {
+        swap(i, parentIndex, heap);
+        i = parentIndex;
+      } else {
+        break;
+      }
     }
-    function heapfy(heap,k,i,map){
-        while(true){
-            let parentIndex = i,leftIndex=2*parentIndex+1 , rightIndex=2*parentIndex+2
-            if (leftIndex<k && map[heap[parentIndex]]>map[heap[leftIndex]]) parentIndex = leftIndex
-            if (rightIndex<k && map[heap[parentIndex]]>map[heap[rightIndex]]) parentIndex = rightIndex
-            if(parentIndex!=i){
-            swap(i,parentIndex,heap)
-            i=parentIndex
-            }
-            else{
-                break
-            }
-        } 
-    }
-    function swap(a,b,heap){
-        let temp = heap[a]
-        heap[a]=heap[b]
-        heap[b]=temp
-    }
-    return heap
-}
+  }
+  function swap(a, b, heap) {
+    let temp = heap[a];
+    heap[a] = heap[b];
+    heap[b] = temp;
+  }
+  return heap;
+};
 ```
 
 ## Day 24
 
 ### LeetCode [384] 打乱数组
-``` javascript
-var Solution = function(nums) {
-    this.nums=nums
+
+```javascript
+var Solution = function (nums) {
+  this.nums = nums;
 };
 
-Solution.prototype.reset = function() {
-    return this.nums
+Solution.prototype.reset = function () {
+  return this.nums;
 };
 
-Solution.prototype.shuffle = function() {
-    let temp = JSON.parse(JSON.stringify(this.nums)) ,length=temp.length //深拷贝nums
-    function swap(a,b,arr){
-        let temp = arr[a]
-        arr[a]=arr[b]
-        arr[b]=temp
-    }
-    //原地打乱数组
-    while(length){
-        let random = Math.floor(Math.random()*length) //产生随机数
-        swap(random,length-1,temp)  
-        length--
-    }
-    return temp
+Solution.prototype.shuffle = function () {
+  let temp = JSON.parse(JSON.stringify(this.nums)),
+    length = temp.length; //深拷贝nums
+  function swap(a, b, arr) {
+    let temp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = temp;
+  }
+  //原地打乱数组
+  while (length) {
+    let random = Math.floor(Math.random() * length); //产生随机数
+    swap(random, length - 1, temp);
+    length--;
+  }
+  return temp;
 };
 ```
 
 ### LeetCode [148] 排序链表
+
 > 参考冒泡排序
-``` javascript
-var sortList = function(head) {
-    if(!head) return head
-    let flag = false , cur
-    while(!flag){
-        flag = true //当整一次遍历没有发生位置调整退出循环
-        cur =head
-        while(cur.next){
-            let node = cur.next
-            if(cur.val>node.val){
-                flag = false
-                let temp = node.val
-                node.val = cur.val
-                cur.val = temp
-            }
-            cur=cur.next
-        }
+
+```javascript
+var sortList = function (head) {
+  if (!head) return head;
+  let flag = false,
+    cur;
+  while (!flag) {
+    flag = true; //当整一次遍历没有发生位置调整退出循环
+    cur = head;
+    while (cur.next) {
+      let node = cur.next;
+      if (cur.val > node.val) {
+        flag = false;
+        let temp = node.val;
+        node.val = cur.val;
+        cur.val = temp;
+      }
+      cur = cur.next;
     }
-    return head
+  }
+  return head;
 };
 ```
 
 ## Day 25
 
-
 ### LeetCode [148] 排序链表
+
 > 归并排序思想
-``` javascript
-var sortList = function(head) {
-    if(!head) return head
-    function mergeSort(head,tail){
-        if(!head||head.next===tail){
-            head.next=null //对于边界值的处理
-            return head
-        } 
-        let slow = head,fast=head
-        while(fast!==tail){
-            slow=slow.next
-            fast=fast.next
-            if(fast!==tail) fast=fast.next
-        }
-        return merge(mergeSort(head,slow),mergeSort(slow,tail))
+
+```javascript
+var sortList = function (head) {
+  if (!head) return head;
+  function mergeSort(head, tail) {
+    if (!head || head.next === tail) {
+      head.next = null; //对于边界值的处理
+      return head;
     }
-    // 合并两个有序链表
-    function merge(list1,list2){
-        let dummy = new ListNode(),p=list1,q=list2,v=dummy
-        while(p&&q){   
-                if(q.val<p.val){
-                    v.next=q
-                    q=q.next
-                } 
-                else{
-                   v.next=p
-                   p=p.next
-                } 
-                v=v.next
-        }
-        if(!p) v.next=q
-        if(!q) v.next=p
-        return dummy.next
+    let slow = head,
+      fast = head;
+    while (fast !== tail) {
+      slow = slow.next;
+      fast = fast.next;
+      if (fast !== tail) fast = fast.next;
     }
-    return mergeSort(head,null)
+    return merge(mergeSort(head, slow), mergeSort(slow, tail));
+  }
+  // 合并两个有序链表
+  function merge(list1, list2) {
+    let dummy = new ListNode(),
+      p = list1,
+      q = list2,
+      v = dummy;
+    while (p && q) {
+      if (q.val < p.val) {
+        v.next = q;
+        q = q.next;
+      } else {
+        v.next = p;
+        p = p.next;
+      }
+      v = v.next;
+    }
+    if (!p) v.next = q;
+    if (!q) v.next = p;
+    return dummy.next;
+  }
+  return mergeSort(head, null);
 };
 ```
 
 ## Day 26
 
-
 ### LeetCode [34] 在排序数组中查找元素的第一个和最后一个位置
+
 > 二分查找
-``` javascript
-var searchRange = function(nums, target) {
-        let half = Math.floor(nums.length/2) ,left=0,right=nums.length
-        while(true){
-            //当half=left或者=right的时候说明左右边界相遇了，中间没有元素了。如果当前元素为target则输出否则输出[-1,-1]
-            if(half===left||half===right){
-                if(nums[half]===target) return[half,half]
-                else return[-1,-1]
-            }
-            if(nums[half]>target){
-                right = half //右边界左移
-                half=left+Math.floor((right-left)/2) 
-            } 
-            else if(nums[half]<target) {
-                left=half //左边界右移
-                half=left+Math.floor((right-left)/2)
-            }
-            else{
-                let ans=[half,half],left=half,right=half
-                while(true){
-                    //如果当前元素的左右元素都不等于target退出循环
-                    if(nums[left-1]!=target&&nums[right+1]!=target) break
-                    //如果左边元素也等于target则将左边界左移，继续循环
-                    if(nums[left-1]===target){
-                        ans[0]=left-1
-                        left--
-                    } 
-                    //如果右边元素也等于target则将右边界右移，继续循环
-                    if(nums[right+1]===target){
-                        ans[1]=right+1
-                        right++
-                    } 
-                }
-                return ans
-            }
+
+```javascript
+var searchRange = function (nums, target) {
+  let half = Math.floor(nums.length / 2),
+    left = 0,
+    right = nums.length;
+  while (true) {
+    //当half=left或者=right的时候说明左右边界相遇了，中间没有元素了。如果当前元素为target则输出否则输出[-1,-1]
+    if (half === left || half === right) {
+      if (nums[half] === target) return [half, half];
+      else return [-1, -1];
+    }
+    if (nums[half] > target) {
+      right = half; //右边界左移
+      half = left + Math.floor((right - left) / 2);
+    } else if (nums[half] < target) {
+      left = half; //左边界右移
+      half = left + Math.floor((right - left) / 2);
+    } else {
+      let ans = [half, half],
+        left = half,
+        right = half;
+      while (true) {
+        //如果当前元素的左右元素都不等于target退出循环
+        if (nums[left - 1] != target && nums[right + 1] != target) break;
+        //如果左边元素也等于target则将左边界左移，继续循环
+        if (nums[left - 1] === target) {
+          ans[0] = left - 1;
+          left--;
         }
+        //如果右边元素也等于target则将右边界右移，继续循环
+        if (nums[right + 1] === target) {
+          ans[1] = right + 1;
+          right++;
+        }
+      }
+      return ans;
+    }
+  }
 };
 ```
 
 ### LeetCode [875] 爱吃香蕉的珂珂
+
 > 二分查找
-``` javascript
-var minEatingSpeed = function(piles, h) {
-    let left=0,right=Math.max(...piles)+1,ans
-    while(true){
-        if(left+1===right) return ans
-        half = left+ Math.floor((right-left)/2)
-        if(canFinish(half)){
-            right= half
-            ans = half
-        }
-        else{
-            left= half
-        }
+
+```javascript
+var minEatingSpeed = function (piles, h) {
+  let left = 0,
+    right = Math.max(...piles) + 1,
+    ans;
+  while (true) {
+    if (left + 1 === right) return ans;
+    half = left + Math.floor((right - left) / 2);
+    if (canFinish(half)) {
+      right = half;
+      ans = half;
+    } else {
+      left = half;
     }
-    function canFinish(ans){
-        let sum=0
-        for (let i=0 ; i<piles.length ; i++){
-            if(!piles[i]%ans) sum+=piles[i]/ans
-            else sum+= Math.ceil(piles[i]/ans)
-        }
-        if(sum>h) return false
-        else return true
+  }
+  function canFinish(ans) {
+    let sum = 0;
+    for (let i = 0; i < piles.length; i++) {
+      if (!piles[i] % ans) sum += piles[i] / ans;
+      else sum += Math.ceil(piles[i] / ans);
     }
+    if (sum > h) return false;
+    else return true;
+  }
 };
 ```
 
 ## Day 27
 
-[LeetCode70 爬楼梯](/LeetCode/.leetcode/70.%E7%88%AC%E6%A5%BC%E6%A2%AF.js)
+[LeetCode70 爬楼梯](./LeetCode/.leetcode/70.%E7%88%AC%E6%A5%BC%E6%A2%AF.js)
 
-[LeetCode746 使用最小花费爬楼梯](/LeetCode/.leetcode/746.%E4%BD%BF%E7%94%A8%E6%9C%80%E5%B0%8F%E8%8A%B1%E8%B4%B9%E7%88%AC%E6%A5%BC%E6%A2%AF.js)
+[LeetCode746 使用最小花费爬楼梯](./LeetCode/.leetcode/746.%E4%BD%BF%E7%94%A8%E6%9C%80%E5%B0%8F%E8%8A%B1%E8%B4%B9%E7%88%AC%E6%A5%BC%E6%A2%AF.js)
 
-[LeetCode53 最大子数组和](/LeetCode/.leetcode/53.%E6%9C%80%E5%A4%A7%E5%AD%90%E6%95%B0%E7%BB%84%E5%92%8C.js)
-
+[LeetCode53 最大子数组和](./LeetCode/.leetcode/53.%E6%9C%80%E5%A4%A7%E5%AD%90%E6%95%B0%E7%BB%84%E5%92%8C.js)
 
 ## Day 28
 
-[LeetCode121 买卖股票的最佳时机](/LeetCode/.leetcode/121.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA.js)
+[LeetCode121 买卖股票的最佳时机](./LeetCode/.leetcode/121.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA.js)
 
-[LeetCode647 回文子串](/LeetCode/.leetcode/647.%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2.js)
-
+[LeetCode647 回文子串](./LeetCode/.leetcode/647.%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2.js)
 
 ## Day 29
 
+###
 
-### 
-[LeetCode5 最长回文子串](/LeetCode/.leetcode/5.%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2.js)
+[LeetCode5 最长回文子串](./LeetCode/.leetcode/5.%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2.js)
 
-[LeetCode64 最小路径和](/LeetCode/.leetcode/64.%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C.js)
-
+[LeetCode64 最小路径和](./LeetCode/.leetcode/64.%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C.js)
 
 ## Day 30
 
-[LeetCode122 买卖股票的最佳时机 II](/LeetCode/.leetcode/122.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA-ii.js)
+[LeetCode122 买卖股票的最佳时机 II](./LeetCode/.leetcode/122.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA-ii.js)
 
-[LeetCode455 分发饼干](/LeetCode/.leetcode/455.%E5%88%86%E5%8F%91%E9%A5%BC%E5%B9%B2.js)
+[LeetCode455 分发饼干](./LeetCode/.leetcode/455.%E5%88%86%E5%8F%91%E9%A5%BC%E5%B9%B2.js)
 
-[LeetCode659 分割数组为连续子序列](/LeetCode/.leetcode/659.%E5%88%86%E5%89%B2%E6%95%B0%E7%BB%84%E4%B8%BA%E8%BF%9E%E7%BB%AD%E5%AD%90%E5%BA%8F%E5%88%97.js)
-
+[LeetCode659 分割数组为连续子序列](./LeetCode/.leetcode/659.%E5%88%86%E5%89%B2%E6%95%B0%E7%BB%84%E4%B8%BA%E8%BF%9E%E7%BB%AD%E5%AD%90%E5%BA%8F%E5%88%97.js)
 
 ## Day 31
-[LeetCode46 全排列](/LeetCode/.leetcode/46.%E5%85%A8%E6%8E%92%E5%88%97.js)
 
+[LeetCode46 全排列](./LeetCode/.leetcode/46.%E5%85%A8%E6%8E%92%E5%88%97.js)
 
-[LeetCode22 括号生成](/LeetCode/.leetcode/22.括号生成.js)
-
+[LeetCode22 括号生成](./LeetCode/.leetcode/22.括号生成.js)
 
 ## Day 32
 
-[数组扁平化去重排序](/%E6%89%8B%E5%86%99%E9%A2%98/数组扁平化去重排序.js)
+[数组扁平化去重排序](./%E6%89%8B%E5%86%99%E9%A2%98/数组扁平化去重排序.js)
 
-[数组中有对象或者数组的去重](/%E6%89%8B%E5%86%99%E9%A2%98/数组中有对象或者数组的去重.js)
+[数组中有对象或者数组的去重](./%E6%89%8B%E5%86%99%E9%A2%98/数组中有对象或者数组的去重.js)
 
-[腾讯：不产生新数组，删除数组里的重复元素](/%E6%89%8B%E5%86%99%E9%A2%98/腾讯：不产生新数组，删除数组里的重复元素.js)
+[腾讯：不产生新数组，删除数组里的重复元素](./%E6%89%8B%E5%86%99%E9%A2%98/腾讯：不产生新数组，删除数组里的重复元素.js)
 
-[实现一个findIndex函数](/%E6%89%8B%E5%86%99%E9%A2%98/实现一个findIndex函数.js)
+[实现一个 findIndex 函数](./%E6%89%8B%E5%86%99%E9%A2%98/实现一个findIndex函数.js)
 
-[字节：模拟实现Array.prototype.splice](/%E6%89%8B%E5%86%99%E9%A2%98/字节模拟实现Array.prototype.splice.js)
+[字节：模拟实现 Array.prototype.splice](./%E6%89%8B%E5%86%99%E9%A2%98/字节模拟实现Array.prototype.splice.js)
 
-[手写call.apply和bind](/%E6%89%8B%E5%86%99%E9%A2%98/手写call.apply和bind.js)
+[手写 call.apply 和 bind](./%E6%89%8B%E5%86%99%E9%A2%98/手写call.apply和bind.js)
 
 ## Day 33
 
-[Object.create()以及JS继承方式](/%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/1.Object.create().md)
+[Object.create()以及 JS 继承方式](<./%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/1.Object.create().md>)
 
-[字节编程题：实现一个add方法](/%E6%89%8B%E5%86%99%E9%A2%98/字节编程题：实现一个add方法.js)
+[字节编程题：实现一个 add 方法](./%E6%89%8B%E5%86%99%E9%A2%98/字节编程题：实现一个add方法.js)
+
+## Day 34
+
+[手写深拷贝（使用 weakMap 解决循环引用）](./%E6%89%8B%E5%86%99%E9%A2%98/%E6%B7%B1%E6%8B%B7%E8%B4%9D.js)
+
+## Day 35
+
+[for in 和 for of 以及 for each](./%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/for%20in%20%E5%92%8C%20for%20of%20%E4%BB%A5%E5%8F%8A%20for%20each.md)
+
+## Day 36
+
+[模板渲染](./%E6%89%8B%E5%86%99%E9%A2%98/%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93.js)
+
+[阿里&字节:手写async/await的实现](./%E6%89%8B%E5%86%99%E9%A2%98/await%E7%9A%84%E5%AE%9E%E7%8E%B0.js)
+
+## Day 37
+[如何实现防抖和节流](./%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%98%B2%E6%8A%96%E5%92%8C%E8%8A%82%E6%B5%81.js)
