@@ -1921,3 +1921,7 @@ var minEatingSpeed = function (piles, h) {
 
 ## Day 37
 [如何实现防抖和节流](./%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%98%B2%E6%8A%96%E5%92%8C%E8%8A%82%E6%B5%81.js)
+
+[模拟实现new操作符](./%E6%89%8B%E5%86%99%E9%A2%98/%E6%A8%A1%E6%8B%9F%E5%AE%9E%E7%8E%B0new%E6%93%8D%E4%BD%9C%E7%AC%A6.js)
+
+[谈谈对this的理解](./%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E8%B0%88%E8%B0%88%E5%AF%B9this%E7%9A%84%E7%90%86%E8%A7%A3.md)

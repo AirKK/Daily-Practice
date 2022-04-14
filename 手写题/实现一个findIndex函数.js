@@ -4,56 +4,30 @@ const nums=[1, 2, 3, 4, 5,5,6,7, 7, 7, 8,8,9]
 //使用api
 console.log(nums.indexOf(7));//7
 
-//手动实现（二分查找）
-// const findIndex=(nums,target)=>{
-//     let half = Math.floor(nums.length/2),left=0;right=nums.length
-//     while(true){
-//         if(left+1===right){
-//             if(nums[half]===target) return half
-//             return false //表示数组不存在该目标值
-//         }
-//         if(nums[half]<target){
-//             left = half
-//             half=left+Math.floor((right-left)/2) 
-//         } 
-//         else if(nums[half]>target) {
-//             right = half
-//             half=left+Math.floor((right-left)/2) 
-//         }
-//         else{
-//             while(nums[half]===target){
-//                 half--
-//             }
-//             return half+1
-//         }
-//     }
-// }
-// console.log(findIndex(nums,7));//7
-
-
-class Parent{
-    static proArr = [1,2,3] // 要多个子类实例共享部分数据可以使用 static
-    constructor(){
-        this.name = "parent";
-        this.colors = ["red", "blue", "yellow"];
-    }
-
-    sayFather(){
-        console.log("来自父类的呐喊")
+// 手动实现（二分查找）
+const findIndex=(nums,target)=>{
+    let half = Math.floor(nums.length/2),left=0;right=nums.length
+    while(true){
+        if(left+1===right){
+            if(nums[half]===target) return half
+            return false //表示数组不存在该目标值
+        }
+        if(nums[half]<target){
+            left = half
+            half=left+Math.floor((right-left)/2) 
+        } 
+        else if(nums[half]>target) {
+            right = half
+            half=left+Math.floor((right-left)/2) 
+        }
+        else{
+            while(nums[half]===target){
+                half--
+            }
+            return half+1
+        }
     }
 }
+console.log(findIndex(nums,7));//7
 
-// 定义子类
-class Child extends Parent{ // 继承父类且扩展
-    constructor(){
-        super();
-        this.type = "child"; // 扩展父类属性
-    }
 
-    sayChild() {
-        console.log("来自子类的呐喊")
-    }
-}
-// 调用：
-let c1 = new Child()
-console.log(c1.sayChild());
